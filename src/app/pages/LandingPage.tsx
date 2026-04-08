@@ -147,8 +147,8 @@ export function LandingPage() {
       {/* Best Portfolios */}
       <section className="py-32 px-6 sm:px-8 lg:px-12 bg-gradient-to-b from-white to-gray-50">
         <div className="max-w-[90rem] mx-auto">
-          <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-12 md:mb-20 gap-8">
-            <div className="max-w-2xl">
+          <div className="flex flex-col items-center text-center mb-12 md:mb-20 gap-6 md:gap-8">
+            <div className="max-w-3xl mx-auto flex flex-col items-center">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-50 rounded-full border border-yellow-200 mb-6">
                 <TrendingUp className="w-4 h-4 text-yellow-600" />
                 <span className="text-sm text-yellow-900 font-medium">베스트 프로젝트</span>
@@ -156,12 +156,11 @@ export function LandingPage() {
               <h2 className="text-5xl md:text-6xl mb-6 tracking-tight">최근 완료된<br />프리미엄 공간</h2>
               <p className="text-xl text-gray-600">실제 고객의 성공 스토리를 확인하세요</p>
             </div>
-            
-            <Link 
+            <Link
               to="/portfolio"
               className="group inline-flex items-center gap-2 text-black hover:gap-4 transition-all font-medium"
             >
-              전체 보기 
+              전체 보기
               <ArrowRight className="w-5 h-5" />
             </Link>
           </div>

@@ -1,13 +1,20 @@
 import { Outlet, Link, useLocation } from "react-router";
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useLayoutEffect } from "react";
 import { SiteFooter } from "./SiteFooter";
 import { FloatingSocialLinks } from "./FloatingSocialLinks";
 
 export function MainLayout() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
+
+  /** 라우트 이동마다 항상 페이지 최상단으로 (스크롤 복원 이슈 방지) */
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [location.pathname, location.search]);
+
   const isAdmin = location.pathname === '/admin';
 
   const navItems = [

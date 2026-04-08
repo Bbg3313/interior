@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router";
-import { SlidersHorizontal, MapPin, DollarSign, Ruler, Tag } from "lucide-react";
+import { MapPin, Ruler, Tag } from "lucide-react";
 import { getPortfolios } from "../../lib/api";
 import { PORTFOLIO_INDUSTRY_OPTIONS } from "../../lib/portfolioIndustries";
 
@@ -17,12 +17,7 @@ type ProjectItem = {
 };
 
 export function PortfolioPage() {
-  const [filters, setFilters] = useState({
-    industry: "전체",
-    budget: "전체",
-    area: "전체",
-    style: "전체",
-  });
+  const [selectedIndustry, setSelectedIndustry] = useState<string>("전체");
 
   const [visibleCount, setVisibleCount] = useState(6);
   const [portfolioProjects, setPortfolioProjects] = useState<ProjectItem[]>([]);
@@ -49,13 +44,14 @@ export function PortfolioPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    setVisibleCount(6);
+  }, [selectedIndustry]);
+
   const filteredProjects = useMemo(() => {
-    return portfolioProjects.filter((p) => {
-      if (filters.industry !== "전체" && p.industry !== filters.industry) return false;
-      if (filters.style !== "전체" && p.style !== filters.style) return false;
-      return true;
-    });
-  }, [portfolioProjects, filters]);
+    if (selectedIndustry === "전체") return portfolioProjects;
+    return portfolioProjects.filter((p) => p.industry === selectedIndustry);
+  }, [portfolioProjects, selectedIndustry]);
 
   const loadMore = () => {
     setVisibleCount((prev) => Math.min(prev + 6, filteredProjects.length));
@@ -80,106 +76,44 @@ export function PortfolioPage() {
         </div>
       </div>
 
-      {/* Advanced Filter Bar */}
+      {/* 업종 카테고리 */}
       <div className="bg-white/80 backdrop-blur-xl border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* Industry Type Filter */}
-            <div className="relative group">
-              <label className="block text-sm font-medium text-gray-700 mb-2">업종</label>
-              <div className="relative">
-                <select 
-                  className="w-full px-5 py-3.5 border border-gray-200 rounded-xl appearance-none bg-white hover:border-gray-300 focus:border-black focus:ring-2 focus:ring-black/5 transition-all cursor-pointer text-sm"
-                  value={filters.industry}
-                  onChange={(e) => setFilters({...filters, industry: e.target.value})}
-                >
-                  <option>전체</option>
-                  {PORTFOLIO_INDUSTRY_OPTIONS.map((label) => (
-                    <option key={label} value={label}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-                <Tag className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-              </div>
-            </div>
-
-            {/* Budget Range Filter */}
-            <div className="relative group">
-              <label className="block text-sm font-medium text-gray-700 mb-2">예산</label>
-              <div className="relative">
-                <select 
-                  className="w-full px-5 py-3.5 border border-gray-200 rounded-xl appearance-none bg-white hover:border-gray-300 focus:border-black focus:ring-2 focus:ring-black/5 transition-all cursor-pointer text-sm"
-                  value={filters.budget}
-                  onChange={(e) => setFilters({...filters, budget: e.target.value})}
-                >
-                  <option>전체</option>
-                  <option>5천만원 미만</option>
-                  <option>5천만원~1억</option>
-                  <option>1억~2억</option>
-                  <option>2억 이상</option>
-                </select>
-                <DollarSign className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-              </div>
-            </div>
-
-            {/* Floor Area Filter */}
-            <div className="relative group">
-              <label className="block text-sm font-medium text-gray-700 mb-2">면적</label>
-              <div className="relative">
-                <select 
-                  className="w-full px-5 py-3.5 border border-gray-200 rounded-xl appearance-none bg-white hover:border-gray-300 focus:border-black focus:ring-2 focus:ring-black/5 transition-all cursor-pointer text-sm"
-                  value={filters.area}
-                  onChange={(e) => setFilters({...filters, area: e.target.value})}
-                >
-                  <option>전체</option>
-                  <option>30평 미만</option>
-                  <option>30평~50평</option>
-                  <option>50평~100평</option>
-                  <option>100평 이상</option>
-                </select>
-                <Ruler className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-              </div>
-            </div>
-
-            {/* Style Filter */}
-            <div className="relative group">
-              <label className="block text-sm font-medium text-gray-700 mb-2">스타일</label>
-              <div className="relative">
-                <select 
-                  className="w-full px-5 py-3.5 border border-gray-200 rounded-xl appearance-none bg-white hover:border-gray-300 focus:border-black focus:ring-2 focus:ring-black/5 transition-all cursor-pointer text-sm"
-                  value={filters.style}
-                  onChange={(e) => setFilters({...filters, style: e.target.value})}
-                >
-                  <option>전체</option>
-                  <option>모던</option>
-                  <option>미니멀</option>
-                  <option>럭셔리</option>
-                  <option>인더스트리얼</option>
-                  <option>빈티지</option>
-                </select>
-                <SlidersHorizontal className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-              </div>
-            </div>
+          <p className="text-sm font-medium text-gray-700 mb-3">업종</p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setSelectedIndustry("전체")}
+              className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                selectedIndustry === "전체"
+                  ? "bg-black text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              전체
+            </button>
+            {PORTFOLIO_INDUSTRY_OPTIONS.map((label) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => setSelectedIndustry(label)}
+                className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                  selectedIndustry === label
+                    ? "bg-black text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
       {/* Portfolio Grid */}
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
-        <div className="mb-8 flex items-center justify-between">
-          <div className="text-gray-600">
-            {loading ? "로딩 중..." : `총 ${filteredProjects.length}개의 프로젝트`}
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <button className="px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-              최신순
-            </button>
-            <button className="px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-              가격순
-            </button>
-          </div>
+        <div className="mb-8 text-gray-600">
+          {loading ? "로딩 중..." : `총 ${filteredProjects.length}개의 프로젝트`}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

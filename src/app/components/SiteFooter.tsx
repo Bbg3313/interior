@@ -7,19 +7,22 @@ export function SiteFooter() {
   return (
     <footer className="bg-neutral-50 border-t border-gray-200 text-gray-800">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-14 lg:py-16">
+        <div className="mb-10 lg:mb-12">
+          <Link
+            to="/"
+            className="inline-block rounded-md bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-800 transition-opacity hover:opacity-90"
+          >
+            <img
+              src="/soulin-woodwork-logo.png"
+              alt="Soulin woodwork · 설린 우드팩토리"
+              className="h-10 w-auto max-w-[200px] object-contain object-left mix-blend-multiply sm:h-11 sm:max-w-[220px] md:h-12 md:max-w-[240px]"
+              decoding="async"
+            />
+          </Link>
+        </div>
+
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:items-start lg:gap-0">
           <div className="lg:col-span-5 lg:pr-8 xl:pr-12">
-            <Link
-              to="/"
-              className="mb-6 inline-block rounded-md bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-800 transition-opacity hover:opacity-90"
-            >
-              <img
-                src="/soulin-woodwork-logo.png"
-                alt="Soulin woodwork · 설린 우드팩토리"
-                className="h-10 w-auto max-w-[200px] object-contain object-left mix-blend-multiply sm:h-11 sm:max-w-[220px] md:h-12 md:max-w-[240px]"
-                decoding="async"
-              />
-            </Link>
             <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-2">사업자 정보</p>
             <h3 className="text-lg font-semibold text-black mb-5 tracking-tight">설린 우드팩토리</h3>
             <ul className="space-y-4 text-sm">
@@ -119,7 +122,7 @@ export function SiteFooter() {
               </li>
             </ul>
 
-            <div className="mt-5 flex items-center gap-2.5">
+            <div className="mt-5 flex items-center gap-3">
               <a
                 href={kakaoChannelUrl || "#"}
                 target="_blank"
@@ -129,7 +132,7 @@ export function SiteFooter() {
                 onClick={(e) => {
                   if (!kakaoChannelUrl) e.preventDefault();
                 }}
-                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FEE500] text-[#3C1E1E] shadow-sm ring-1 ring-black/10 transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3C1E1E] ${
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-black/10 bg-[#FEE500] text-[#3C1E1E] transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3C1E1E] ${
                   !kakaoChannelUrl ? "pointer-events-none opacity-40" : ""
                 }`}
               >
@@ -141,7 +144,7 @@ export function SiteFooter() {
                 rel="noopener noreferrer"
                 aria-label="인스타그램"
                 title="인스타그램"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white p-1.5 shadow-sm ring-1 ring-gray-200 transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-500"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white p-1.5 text-gray-600 transition-opacity hover:border-gray-300 hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-500"
               >
                 <InstagramBrandIcon className="h-full w-full" />
               </a>

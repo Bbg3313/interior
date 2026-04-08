@@ -283,52 +283,6 @@ export function LandingPage() {
           </Link>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 py-20 px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-            <div className="md:col-span-2">
-              <div className="flex items-center gap-2 mb-6">
-                <span className="text-2xl tracking-tight text-black">
-                  Interior<span className="inline-block px-2.5 py-1 ml-2 bg-gradient-to-r from-yellow-400 to-amber-400 text-black rounded-md text-sm font-semibold">PRO</span>
-                </span>
-              </div>
-              <p className="text-gray-600 leading-relaxed mb-6 max-w-md">
-                상업 공간 인테리어 전문 플랫폼<br />
-                카페, 오피스, 레스토랑 등 다양한 업종의<br />
-                프리미엄 인테리어 솔루션을 제공합니다
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-lg mb-4 text-black">서비스</h3>
-              <ul className="space-y-3 text-gray-600">
-                <li><Link to="/portfolio" className="hover:text-black transition-colors">포트폴리오</Link></li>
-                <li><Link to="/estimate" className="hover:text-black transition-colors">견적 요청</Link></li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-lg mb-4 text-black">문의</h3>
-              <ul className="space-y-3 text-gray-600">
-                <li>서울시 강남구 테헤란로 123</li>
-                <li className="hover:text-black transition-colors cursor-pointer">1588-0000</li>
-                <li className="hover:text-black transition-colors cursor-pointer">contact@interiorpro.com</li>
-                <li>평일 09:00 - 18:00</li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4 text-gray-500 text-sm">
-            <p>© 2026 Interior PRO. All rights reserved.</p>
-            <div className="flex gap-6">
-              <a href="#" className="hover:text-black transition-colors">개인정보처리방침</a>
-              <a href="#" className="hover:text-black transition-colors">이용약관</a>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

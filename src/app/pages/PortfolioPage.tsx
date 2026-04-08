@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router";
 import { SlidersHorizontal, MapPin, DollarSign, Ruler, Tag } from "lucide-react";
 import { getPortfolios } from "../../lib/api";
+import { PORTFOLIO_INDUSTRY_OPTIONS } from "../../lib/portfolioIndustries";
 
 type ProjectItem = {
   id: number;
@@ -93,11 +94,11 @@ export function PortfolioPage() {
                   onChange={(e) => setFilters({...filters, industry: e.target.value})}
                 >
                   <option>전체</option>
-                  <option>카페</option>
-                  <option>레스토랑</option>
-                  <option>오피스</option>
-                  <option>리테일</option>
-                  <option>호텔</option>
+                  {PORTFOLIO_INDUSTRY_OPTIONS.map((label) => (
+                    <option key={label} value={label}>
+                      {label}
+                    </option>
+                  ))}
                 </select>
                 <Tag className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
               </div>

@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation } from "react-router";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import { SiteFooter } from "./SiteFooter";
 
 export function MainLayout() {
   const location = useLocation();
@@ -87,6 +88,7 @@ export function MainLayout() {
       <main className="pt-[73px]">
         <Outlet />
       </main>
+      {!isAdmin && <SiteFooter />}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { TrendingUp, FileText, DollarSign, Phone, Mail, MapPin, Clock, MoreVertical, Plus, Send, Sparkles, AlertCircle, X, Image as ImageIcon, LogOut } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { getLeads, getPortfolios, createPortfolio, getSiteSetting, setSiteSetting, uploadPortfolioImages } from "../../lib/api";
+import { PORTFOLIO_INDUSTRY_OPTIONS } from "../../lib/portfolioIndustries";
 import { isAdminLoggedIn, setAdminLoggedIn, clearAdminSession, checkAdminCredentials } from "../../lib/adminAuth";
 import type { Lead, Portfolio } from "../../types";
 
@@ -625,11 +626,11 @@ export function AdminPage() {
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:border-black focus:outline-none transition-colors"
                   >
                     <option value="">선택하세요</option>
-                    <option value="카페">카페</option>
-                    <option value="레스토랑">레스토랑</option>
-                    <option value="오피스">오피스</option>
-                    <option value="리테일">리테일</option>
-                    <option value="호텔">호텔</option>
+                    {PORTFOLIO_INDUSTRY_OPTIONS.map((label) => (
+                      <option key={label} value={label}>
+                        {label}
+                      </option>
+                    ))}
                   </select>
                 </div>
 

@@ -7,20 +7,6 @@ export function SiteFooter() {
   return (
     <footer className="bg-neutral-50 border-t border-gray-200 text-gray-800">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-14 lg:py-16">
-        <div className="mb-10 lg:mb-12">
-          <Link
-            to="/"
-            className="inline-block rounded-md bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-800 transition-opacity hover:opacity-90"
-          >
-            <img
-              src="/soulin-woodwork-logo.png"
-              alt="Soulin woodwork · 설린 우드팩토리"
-              className="h-10 w-auto max-w-[200px] object-contain object-left mix-blend-multiply sm:h-11 sm:max-w-[220px] md:h-12 md:max-w-[240px]"
-              decoding="async"
-            />
-          </Link>
-        </div>
-
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:items-start lg:gap-0">
           <div className="lg:col-span-5 lg:pr-8 xl:pr-12">
             <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-2">사업자 정보</p>

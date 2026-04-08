@@ -44,6 +44,17 @@ alter table public.leads enable row level security;
 alter table public.portfolios enable row level security;
 alter table public.reviews enable row level security;
 
+-- 재실행 시 policy 중복 오류 방지
+drop policy if exists "leads read" on public.leads;
+drop policy if exists "leads insert" on public.leads;
+drop policy if exists "leads update" on public.leads;
+drop policy if exists "portfolios read" on public.portfolios;
+drop policy if exists "portfolios insert" on public.portfolios;
+drop policy if exists "portfolios update" on public.portfolios;
+drop policy if exists "portfolios delete" on public.portfolios;
+drop policy if exists "reviews read" on public.reviews;
+drop policy if exists "reviews insert" on public.reviews;
+
 create policy "leads read" on public.leads for select using (true);
 create policy "leads insert" on public.leads for insert with check (true);
 create policy "leads update" on public.leads for update using (true);

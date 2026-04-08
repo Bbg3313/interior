@@ -7,6 +7,10 @@ create table if not exists public.site_settings (
 
 alter table public.site_settings enable row level security;
 
+drop policy if exists "site_settings read" on public.site_settings;
+drop policy if exists "site_settings insert" on public.site_settings;
+drop policy if exists "site_settings update" on public.site_settings;
+
 create policy "site_settings read" on public.site_settings for select using (true);
 create policy "site_settings insert" on public.site_settings for insert with check (true);
 create policy "site_settings update" on public.site_settings for update using (true);

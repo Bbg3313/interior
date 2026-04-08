@@ -7,9 +7,23 @@ export function SiteFooter() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-14 lg:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10">
           <div className="lg:col-span-5">
+            <Link
+              to="/"
+              className="inline-block mb-6 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-800"
+            >
+              <img
+                src="/soulin-woodwork-logo.png"
+                alt="Soulin woodwork · 설린 우드팩토리"
+                className="h-11 w-auto max-w-[220px] sm:h-[3.25rem] sm:max-w-[260px] md:h-14 md:max-w-[280px] object-contain object-left"
+                decoding="async"
+              />
+            </Link>
             <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-2">사업자 정보</p>
-            <h2 className="text-xl font-semibold text-black tracking-tight mb-6">설린 우드팩토리</h2>
             <dl className="space-y-3 text-sm leading-relaxed">
+              <div className="grid grid-cols-1 sm:grid-cols-[7.5rem_1fr] gap-1 sm:gap-3">
+                <dt className="text-gray-500">상호</dt>
+                <dd className="text-gray-900 font-medium">설린 우드팩토리</dd>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-[7.5rem_1fr] gap-1 sm:gap-3">
                 <dt className="text-gray-500">대표</dt>
                 <dd className="text-gray-900">김영국</dd>

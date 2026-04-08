@@ -2,6 +2,7 @@ import { Outlet, Link, useLocation } from "react-router";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { SiteFooter } from "./SiteFooter";
+import { FloatingSocialLinks } from "./FloatingSocialLinks";
 
 export function MainLayout() {
   const location = useLocation();
@@ -89,6 +90,7 @@ export function MainLayout() {
         <Outlet />
       </main>
       {!isAdmin && <SiteFooter />}
+      {!isAdmin && <FloatingSocialLinks />}
     </div>
   );
 }

@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router";
-import { ArrowRight, Sparkles, TrendingUp, FileText, Ruler, HardHat, ShieldCheck } from "lucide-react";
+import { ArrowRight, Sparkles, TrendingUp, FileText, Ruler, HardHat, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import { getPortfolios, getReviews, getSiteSetting } from "../../lib/api";
 import type { Review } from "../../types";
+import { PortfolioProjectCard, mapPortfolioToCardProject, type PortfolioCardProject } from "../components/PortfolioProjectCard";
 
 const defaultReviews: Review[] = [
   { name: "김민준", business: "카페 운영", rating: 5, comment: "3주 만에 완공되었고, 디자인이 정말 만족스럽습니다. 손님들 반응이 정말 좋아요!", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop" },
@@ -14,10 +15,24 @@ export function LandingPage() {
   const defaultHeroUrl =
     "https://images.unsplash.com/photo-1585503081214-2d3384d1f7b0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBjb21tZXJjaWFsJTIwb2ZmaWNlJTIwaW50ZXJpb3IlMjBkZXNpZ258ZW58MXx8fHwxNzcwNzg5MjMzfDA&ixlib=rb-4.1.0&q=80&w=1080";
 
-  const [portfolioItems, setPortfolioItems] = useState<{ id: number; image: string; tags: string[]; title: string; price: string; location: string }[]>([]);
+  const [portfolioProjects, setPortfolioProjects] = useState<PortfolioCardProject[]>([]);
   const [reviews, setReviews] = useState<Review[]>(defaultReviews);
   const [heroImageUrl, setHeroImageUrl] = useState(defaultHeroUrl);
   const [loading, setLoading] = useState(true);
+  const [pageSize, setPageSize] = useState(1);
+  const [carouselStart, setCarouselStart] = useState(0);
+
+  useEffect(() => {
+    const updatePageSize = () => {
+      if (typeof window === "undefined") return;
+      if (window.matchMedia("(min-width: 1024px)").matches) setPageSize(3);
+      else if (window.matchMedia("(min-width: 768px)").matches) setPageSize(2);
+      else setPageSize(1);
+    };
+    updatePageSize();
+    window.addEventListener("resize", updatePageSize);
+    return () => window.removeEventListener("resize", updatePageSize);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -30,25 +45,32 @@ export function LandingPage() {
         ]);
         if (cancelled) return;
         if (heroUrl && heroUrl.trim()) setHeroImageUrl(heroUrl.trim());
-        setPortfolioItems(
-          portfolios.slice(0, 3).map((p) => ({
-            id: p.id,
-            image: p.imageUrl.startsWith("http") ? p.imageUrl : `https://images.unsplash.com/photo-1676716244847-3fae1a2afb5b?w=1080`,
-            tags: [p.industry, p.area],
-            title: p.name,
-            price: p.budget,
-            location: p.location,
-          }))
-        );
+        setPortfolioProjects(portfolios.map(mapPortfolioToCardProject));
         if (reviewsData.length > 0) setReviews(reviewsData);
       } catch {
-        if (!cancelled) setPortfolioItems([]);
+        if (!cancelled) setPortfolioProjects([]);
       } finally {
         if (!cancelled) setLoading(false);
       }
     })();
     return () => { cancelled = true; };
   }, []);
+
+  const maxCarouselStart = Math.max(0, portfolioProjects.length - pageSize);
+
+  useEffect(() => {
+    setCarouselStart((s) => Math.min(s, maxCarouselStart));
+  }, [maxCarouselStart, portfolioProjects.length]);
+
+  const visiblePortfolios = useMemo(
+    () => portfolioProjects.slice(carouselStart, carouselStart + pageSize),
+    [portfolioProjects, carouselStart, pageSize]
+  );
+
+  const canPrev = carouselStart > 0;
+  const canNext = carouselStart < maxCarouselStart;
+  const showCarouselNav = portfolioProjects.length > pageSize;
+  const rangeEnd = Math.min(carouselStart + pageSize, portfolioProjects.length);
 
   return (
     <div className="bg-white">
@@ -129,44 +151,71 @@ export function LandingPage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {loading ? (
-              <div className="md:col-span-3 text-center py-12 text-gray-500">로딩 중...</div>
-            ) : portfolioItems.length === 0 ? (
-              <div className="md:col-span-3 text-center py-12 text-gray-500">등록된 프로젝트가 없습니다.</div>
-            ) : (
-            portfolioItems.map((item) => (
-              <Link 
-                key={item.id} 
-                to={`/portfolio/${item.id}`}
-                className="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100"
-              >
-                <div className="aspect-[4/3] overflow-hidden relative">
-                  <img 
-                    src={item.image} 
-                    alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          {loading ? (
+            <div className="text-center py-12 text-gray-500">로딩 중...</div>
+          ) : portfolioProjects.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">등록된 프로젝트가 없습니다.</div>
+          ) : (
+            <div className="relative">
+              {showCarouselNav && (
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 text-sm text-gray-500">
+                  <span>
+                    {portfolioProjects.length}개 중 {carouselStart + 1}–{rangeEnd}번째
+                  </span>
                 </div>
-                
-                <div className="p-8">
-                  <div className="flex gap-2 mb-4">
-                    {item.tags.map((tag, i) => (
-                      <span key={i} className="text-xs bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full font-medium">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  
-                  <h3 className="text-2xl mb-2 group-hover:text-yellow-600 transition-colors">{item.title}</h3>
-                  <p className="text-gray-500 text-sm mb-3">{item.location}</p>
-                  <p className="text-xl font-semibold text-black">{item.price}</p>
+              )}
+              <div className="flex items-stretch gap-2 sm:gap-3 md:gap-4">
+                <button
+                  type="button"
+                  aria-label="이전 프로젝트"
+                  disabled={!canPrev}
+                  onClick={() => setCarouselStart((s) => Math.max(0, s - 1))}
+                  className="hidden sm:flex shrink-0 w-11 h-11 md:w-12 md:h-12 self-center items-center justify-center rounded-full border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 hover:border-gray-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
+                >
+                  <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+                </button>
+
+                <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                  {visiblePortfolios.map((project) => (
+                    <PortfolioProjectCard key={project.id} project={project} />
+                  ))}
                 </div>
-              </Link>
-            ))
-            )}
-          </div>
+
+                <button
+                  type="button"
+                  aria-label="다음 프로젝트"
+                  disabled={!canNext}
+                  onClick={() => setCarouselStart((s) => Math.min(maxCarouselStart, s + 1))}
+                  className="hidden sm:flex shrink-0 w-11 h-11 md:w-12 md:h-12 self-center items-center justify-center rounded-full border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 hover:border-gray-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
+                >
+                  <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+                </button>
+              </div>
+
+              {showCarouselNav && (
+                <div className="flex sm:hidden justify-center gap-6 mt-6">
+                  <button
+                    type="button"
+                    aria-label="이전"
+                    disabled={!canPrev}
+                    onClick={() => setCarouselStart((s) => Math.max(0, s - 1))}
+                    className="w-11 h-11 flex items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm disabled:opacity-30"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="다음"
+                    disabled={!canNext}
+                    onClick={() => setCarouselStart((s) => Math.min(maxCarouselStart, s + 1))}
+                    className="w-11 h-11 flex items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm disabled:opacity-30"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </section>
 

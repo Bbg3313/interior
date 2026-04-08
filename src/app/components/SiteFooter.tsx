@@ -9,18 +9,19 @@ export function SiteFooter() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-14 lg:py-16">
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:items-start lg:gap-0">
           <div className="lg:col-span-5 lg:pr-8 xl:pr-12">
+            <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-2">사업자 정보</p>
+            <h3 className="text-lg font-semibold text-black mb-5 tracking-tight">설린 우드팩토리</h3>
             <Link
               to="/"
-              className="mb-8 inline-block rounded-md bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-800 transition-opacity hover:opacity-90"
+              className="mb-5 inline-block rounded-md bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-800 transition-opacity hover:opacity-90"
             >
               <img
                 src="/soulin-woodwork-logo.png"
-                alt="Soulin woodwork · 설린 우드팩토리"
-                className="h-12 w-auto max-w-[240px] sm:h-14 sm:max-w-[272px] md:h-[3.75rem] md:max-w-[300px] object-contain object-left mix-blend-multiply"
+                alt="Soulin woodwork"
+                className="h-10 w-auto max-w-[200px] object-contain object-left mix-blend-multiply sm:h-11 sm:max-w-[220px] md:h-12 md:max-w-[240px]"
                 decoding="async"
               />
             </Link>
-            <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-2">사업자 정보</p>
             <dl className="grid gap-x-4 gap-y-3 text-sm leading-relaxed sm:grid-cols-[minmax(6.5rem,auto)_1fr] sm:items-baseline">
               <dt className="text-gray-500">상호</dt>
               <dd className="text-gray-900 font-medium">설린 우드팩토리</dd>
@@ -86,7 +87,7 @@ export function SiteFooter() {
               </li>
             </ul>
 
-            <div className="mt-6 flex items-center gap-3">
+            <div className="mt-5 flex items-center gap-2.5">
               <a
                 href={kakaoChannelUrl || "#"}
                 target="_blank"
@@ -96,11 +97,11 @@ export function SiteFooter() {
                 onClick={(e) => {
                   if (!kakaoChannelUrl) e.preventDefault();
                 }}
-                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#FEE500] text-[#3C1E1E] shadow-sm ring-1 ring-black/10 transition-transform hover:scale-105 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3C1E1E] ${
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FEE500] text-[#3C1E1E] shadow-sm ring-1 ring-black/10 transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3C1E1E] ${
                   !kakaoChannelUrl ? "pointer-events-none opacity-40" : ""
                 }`}
               >
-                <KakaoBrandIcon className="h-[1.35rem] w-[1.35rem]" />
+                <KakaoBrandIcon className="h-4 w-4" />
               </a>
               <a
                 href={instagramProfileUrl}
@@ -108,7 +109,7 @@ export function SiteFooter() {
                 rel="noopener noreferrer"
                 aria-label="인스타그램"
                 title="인스타그램"
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white p-2 shadow-sm ring-1 ring-gray-200 transition-transform hover:scale-105 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-500"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white p-1.5 shadow-sm ring-1 ring-gray-200 transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-500"
               >
                 <InstagramBrandIcon className="h-full w-full" />
               </a>

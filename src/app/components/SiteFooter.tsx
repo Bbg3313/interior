@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Building2, Hash, Mail, MapPin, Phone, ScrollText, User } from "lucide-react";
 import { kakaoChannelUrl, instagramProfileUrl } from "../../lib/socialUrls";
 import { KakaoBrandIcon, InstagramBrandIcon } from "./SocialBrandIcons";
 
@@ -9,34 +9,66 @@ export function SiteFooter() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-14 lg:py-16">
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:items-start lg:gap-0">
           <div className="lg:col-span-5 lg:pr-8 xl:pr-12">
-            <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-2">사업자 정보</p>
-            <h3 className="text-lg font-semibold text-black mb-5 tracking-tight">설린 우드팩토리</h3>
             <Link
               to="/"
-              className="mb-5 inline-block rounded-md bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-800 transition-opacity hover:opacity-90"
+              className="mb-6 inline-block rounded-md bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-800 transition-opacity hover:opacity-90"
             >
               <img
                 src="/soulin-woodwork-logo.png"
-                alt="Soulin woodwork"
+                alt="Soulin woodwork · 설린 우드팩토리"
                 className="h-10 w-auto max-w-[200px] object-contain object-left mix-blend-multiply sm:h-11 sm:max-w-[220px] md:h-12 md:max-w-[240px]"
                 decoding="async"
               />
             </Link>
-            <dl className="grid gap-x-4 gap-y-3 text-sm leading-relaxed sm:grid-cols-[minmax(6.5rem,auto)_1fr] sm:items-baseline">
-              <dt className="text-gray-500">상호</dt>
-              <dd className="text-gray-900 font-medium">설린 우드팩토리</dd>
-              <dt className="text-gray-500">대표</dt>
-              <dd className="text-gray-900">김영국</dd>
-              <dt className="text-gray-500">사업자등록번호</dt>
-              <dd className="text-gray-900">243-29-00326</dd>
-              <dt className="text-gray-500">통신판매업신고</dt>
-              <dd className="text-gray-900">2025-경기김포-1490</dd>
-              <dt className="text-gray-500 align-top pt-0.5">주소</dt>
-              <dd className="text-gray-900 flex gap-2 items-start">
-                <MapPin className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" aria-hidden />
-                <span>경기도 김포시 월하로 710-17 가동</span>
-              </dd>
-            </dl>
+            <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-2">사업자 정보</p>
+            <h3 className="text-lg font-semibold text-black mb-5 tracking-tight">설린 우드팩토리</h3>
+            <ul className="space-y-4 text-sm">
+              <li className="flex gap-3 text-gray-900">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600">
+                  <Building2 className="h-4 w-4" aria-hidden />
+                </span>
+                <span className="min-w-0 pt-0.5">
+                  <span className="mb-0.5 block text-xs text-gray-500">상호</span>
+                  <span className="font-medium text-gray-900">설린 우드팩토리</span>
+                </span>
+              </li>
+              <li className="flex gap-3 text-gray-900">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600">
+                  <User className="h-4 w-4" aria-hidden />
+                </span>
+                <span className="pt-0.5">
+                  <span className="mb-0.5 block text-xs text-gray-500">대표</span>
+                  <span className="text-gray-900">김영국</span>
+                </span>
+              </li>
+              <li className="flex gap-3 text-gray-900">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600">
+                  <Hash className="h-4 w-4" aria-hidden />
+                </span>
+                <span className="pt-0.5">
+                  <span className="mb-0.5 block text-xs text-gray-500">사업자등록번호</span>
+                  <span className="tabular-nums text-gray-900">243-29-00326</span>
+                </span>
+              </li>
+              <li className="flex gap-3 text-gray-900">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600">
+                  <ScrollText className="h-4 w-4" aria-hidden />
+                </span>
+                <span className="min-w-0 pt-0.5">
+                  <span className="mb-0.5 block text-xs text-gray-500">통신판매업신고</span>
+                  <span className="text-gray-900">2025-경기김포-1490</span>
+                </span>
+              </li>
+              <li className="flex gap-3 text-gray-900">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600">
+                  <MapPin className="h-4 w-4" aria-hidden />
+                </span>
+                <span className="min-w-0 pt-0.5">
+                  <span className="mb-0.5 block text-xs text-gray-500">주소</span>
+                  <span className="text-gray-900">경기도 김포시 월하로 710-17 가동</span>
+                </span>
+              </li>
+            </ul>
           </div>
 
           <div className="lg:col-span-4 lg:border-l lg:border-gray-200 lg:pl-8 xl:pl-10">

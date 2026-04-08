@@ -1,5 +1,7 @@
 import { Link } from "react-router";
 import { Mail, MapPin, Phone } from "lucide-react";
+import { kakaoChannelUrl, instagramProfileUrl } from "../../lib/socialUrls";
+import { KakaoBrandIcon, InstagramBrandIcon } from "./SocialBrandIcons";
 
 export function SiteFooter() {
   return (
@@ -9,12 +11,12 @@ export function SiteFooter() {
           <div className="lg:col-span-5">
             <Link
               to="/"
-              className="inline-block mb-6 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-800"
+              className="inline-block mb-6 rounded-md bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-800"
             >
               <img
                 src="/soulin-woodwork-logo.png"
                 alt="Soulin woodwork · 설린 우드팩토리"
-                className="h-11 w-auto max-w-[220px] sm:h-[3.25rem] sm:max-w-[260px] md:h-14 md:max-w-[280px] object-contain object-left"
+                className="h-11 w-auto max-w-[220px] sm:h-[3.25rem] sm:max-w-[260px] md:h-14 md:max-w-[280px] object-contain object-left mix-blend-multiply"
                 decoding="async"
               />
             </Link>
@@ -93,6 +95,41 @@ export function SiteFooter() {
                 </a>
               </li>
             </ul>
+
+            <div className="mt-6 pt-5 border-t border-gray-200">
+              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-500 mb-2.5">
+                SNS 바로가기
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <a
+                  href={kakaoChannelUrl || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => {
+                    if (!kakaoChannelUrl) e.preventDefault();
+                  }}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold shadow-sm ring-1 transition-colors ${
+                    kakaoChannelUrl
+                      ? "bg-[#FEE500] text-[#3C1E1E] ring-black/10 hover:bg-[#f5dc00]"
+                      : "cursor-not-allowed bg-gray-200 text-gray-500 ring-gray-300"
+                  }`}
+                >
+                  <KakaoBrandIcon className="h-3.5 w-3.5 shrink-0" />
+                  카카오톡
+                </a>
+                <a
+                  href={instagramProfileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-gray-800 shadow-sm ring-1 ring-gray-200 transition-colors hover:bg-gray-50 hover:ring-gray-300"
+                >
+                  <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center">
+                    <InstagramBrandIcon className="h-full w-full" />
+                  </span>
+                  인스타그램
+                </a>
+              </div>
+            </div>
           </div>
 
           <div className="lg:col-span-3 lg:border-l lg:border-gray-200 lg:pl-10">

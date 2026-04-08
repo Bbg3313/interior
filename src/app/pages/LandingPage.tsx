@@ -25,8 +25,9 @@ export function LandingPage() {
   useEffect(() => {
     const updatePageSize = () => {
       if (typeof window === "undefined") return;
-      if (window.matchMedia("(min-width: 1024px)").matches) setPageSize(3);
-      else if (window.matchMedia("(min-width: 768px)").matches) setPageSize(2);
+      /* lg+: 3열×2행, md: 2열×2행, 모바일: 1열 */
+      if (window.matchMedia("(min-width: 1024px)").matches) setPageSize(6);
+      else if (window.matchMedia("(min-width: 768px)").matches) setPageSize(4);
       else setPageSize(1);
     };
     updatePageSize();
@@ -56,11 +57,18 @@ export function LandingPage() {
     return () => { cancelled = true; };
   }, []);
 
-  const maxCarouselStart = Math.max(0, portfolioProjects.length - pageSize);
+  const maxCarouselStart = useMemo(() => {
+    const len = portfolioProjects.length;
+    if (len <= pageSize) return 0;
+    return (Math.ceil(len / pageSize) - 1) * pageSize;
+  }, [portfolioProjects.length, pageSize]);
 
   useEffect(() => {
-    setCarouselStart((s) => Math.min(s, maxCarouselStart));
-  }, [maxCarouselStart, portfolioProjects.length]);
+    setCarouselStart((s) => {
+      const snapped = Math.floor(s / pageSize) * pageSize;
+      return Math.min(Math.max(0, snapped), maxCarouselStart);
+    });
+  }, [maxCarouselStart, pageSize, portfolioProjects.length]);
 
   const visiblePortfolios = useMemo(
     () => portfolioProjects.slice(carouselStart, carouselStart + pageSize),
@@ -71,6 +79,13 @@ export function LandingPage() {
   const canNext = carouselStart < maxCarouselStart;
   const showCarouselNav = portfolioProjects.length > pageSize;
   const rangeEnd = Math.min(carouselStart + pageSize, portfolioProjects.length);
+
+  const stepCarousel = (dir: -1 | 1) => {
+    setCarouselStart((s) => {
+      if (dir < 0) return Math.max(0, s - pageSize);
+      return Math.min(maxCarouselStart, s + pageSize);
+    });
+  };
 
   return (
     <div className="bg-white">
@@ -130,9 +145,9 @@ export function LandingPage() {
       </section>
 
       {/* Best Portfolios */}
-      <section className="py-32 px-6 lg:px-8 bg-gradient-to-b from-white to-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-16 gap-6">
+      <section className="py-32 px-6 sm:px-8 lg:px-12 bg-gradient-to-b from-white to-gray-50">
+        <div className="max-w-[90rem] mx-auto">
+          <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-12 md:mb-20 gap-8">
             <div className="max-w-2xl">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-50 rounded-full border border-yellow-200 mb-6">
                 <TrendingUp className="w-4 h-4 text-yellow-600" />
@@ -158,24 +173,24 @@ export function LandingPage() {
           ) : (
             <div className="relative">
               {showCarouselNav && (
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 text-sm text-gray-500">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 md:mb-8 text-sm text-gray-500">
                   <span>
                     {portfolioProjects.length}개 중 {carouselStart + 1}–{rangeEnd}번째
                   </span>
                 </div>
               )}
-              <div className="flex items-stretch gap-2 sm:gap-3 md:gap-4">
+              <div className="flex items-stretch gap-4 sm:gap-6 md:gap-8 lg:gap-10">
                 <button
                   type="button"
                   aria-label="이전 프로젝트"
                   disabled={!canPrev}
-                  onClick={() => setCarouselStart((s) => Math.max(0, s - 1))}
-                  className="hidden sm:flex shrink-0 w-11 h-11 md:w-12 md:h-12 self-center items-center justify-center rounded-full border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 hover:border-gray-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
+                  onClick={() => stepCarousel(-1)}
+                  className="hidden sm:flex shrink-0 w-12 h-12 md:w-14 md:h-14 self-center items-center justify-center rounded-full border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 hover:border-gray-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
                 >
-                  <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+                  <ChevronLeft className="w-6 h-6 md:w-7 md:h-7" />
                 </button>
 
-                <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10 md:gap-x-10 md:gap-y-12 lg:gap-x-12 lg:gap-y-14">
                   {visiblePortfolios.map((project) => (
                     <PortfolioProjectCard key={project.id} project={project} />
                   ))}
@@ -185,32 +200,32 @@ export function LandingPage() {
                   type="button"
                   aria-label="다음 프로젝트"
                   disabled={!canNext}
-                  onClick={() => setCarouselStart((s) => Math.min(maxCarouselStart, s + 1))}
-                  className="hidden sm:flex shrink-0 w-11 h-11 md:w-12 md:h-12 self-center items-center justify-center rounded-full border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 hover:border-gray-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
+                  onClick={() => stepCarousel(1)}
+                  className="hidden sm:flex shrink-0 w-12 h-12 md:w-14 md:h-14 self-center items-center justify-center rounded-full border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 hover:border-gray-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
                 >
-                  <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+                  <ChevronRight className="w-6 h-6 md:w-7 md:h-7" />
                 </button>
               </div>
 
               {showCarouselNav && (
-                <div className="flex sm:hidden justify-center gap-6 mt-6">
+                <div className="flex sm:hidden justify-center gap-8 mt-10">
                   <button
                     type="button"
                     aria-label="이전"
                     disabled={!canPrev}
-                    onClick={() => setCarouselStart((s) => Math.max(0, s - 1))}
-                    className="w-11 h-11 flex items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm disabled:opacity-30"
+                    onClick={() => stepCarousel(-1)}
+                    className="w-12 h-12 flex items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm disabled:opacity-30"
                   >
-                    <ChevronLeft className="w-5 h-5" />
+                    <ChevronLeft className="w-6 h-6" />
                   </button>
                   <button
                     type="button"
                     aria-label="다음"
                     disabled={!canNext}
-                    onClick={() => setCarouselStart((s) => Math.min(maxCarouselStart, s + 1))}
-                    className="w-11 h-11 flex items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm disabled:opacity-30"
+                    onClick={() => stepCarousel(1)}
+                    className="w-12 h-12 flex items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm disabled:opacity-30"
                   >
-                    <ChevronRight className="w-5 h-5" />
+                    <ChevronRight className="w-6 h-6" />
                   </button>
                 </div>
               )}

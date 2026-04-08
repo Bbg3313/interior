@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router";
-import { MapPin, Ruler, Tag } from "lucide-react";
+import { MapPin, Tag } from "lucide-react";
 import { getPortfolios } from "../../lib/api";
 import { PORTFOLIO_INDUSTRY_OPTIONS } from "../../lib/portfolioIndustries";
 
@@ -116,7 +116,7 @@ export function PortfolioPage() {
           {loading ? "로딩 중..." : `총 ${filteredProjects.length}개의 프로젝트`}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {!loading && visibleProjects.length === 0 && (
             <div className="col-span-full text-center py-16 text-gray-500">등록된 프로젝트가 없습니다.</div>
           )}
@@ -124,48 +124,43 @@ export function PortfolioPage() {
             <Link
               key={project.id}
               to={`/portfolio/${project.id}`}
-              className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 block"
+              className="group relative rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 border border-gray-100/80 block bg-black"
             >
-              {/* Project Image */}
-              <div className="aspect-[4/3] overflow-hidden relative">
-                <img 
-                  src={project.image} 
+              {/* 이미지 중심: 세로 비율을 키워 인테리어 사진이 돋보이게 */}
+              <div className="aspect-[3/4] min-h-[280px] sm:min-h-[320px] overflow-hidden relative">
+                <img
+                  src={project.image}
                   alt={project.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                
-                {/* Floating badges */}
-                <div className="absolute top-4 left-4 flex gap-2">
-                  <span className="px-3 py-1.5 bg-white/90 backdrop-blur-sm text-black text-xs font-semibold rounded-full">
+                {/* 항상 읽기 쉬운 하단 그라데이션 + 호버 시 살짝 진하게 */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/10 group-hover:from-black/90 transition-all duration-500" />
+
+                <div className="absolute top-3 left-3 right-3 flex flex-wrap gap-1.5">
+                  <span className="px-2.5 py-1 bg-white/92 backdrop-blur-sm text-black text-[11px] font-semibold rounded-full shadow-sm">
                     {project.industry}
                   </span>
-                  <span className="px-3 py-1.5 bg-black/80 backdrop-blur-sm text-white text-xs font-medium rounded-full">
+                  <span className="px-2.5 py-1 bg-black/75 backdrop-blur-sm text-white text-[11px] font-medium rounded-full">
                     {project.style}
                   </span>
                 </div>
-              </div>
 
-              {/* Project Details */}
-              <div className="p-8">
-                <h3 className="text-2xl mb-3 group-hover:text-yellow-600 transition-colors">{project.name}</h3>
-                
-                {/* Meta Information Grid */}
-                <div className="space-y-3 mb-6">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <MapPin className="w-4 h-4 flex-shrink-0" />
-                    <span>{project.location}</span>
+                <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6 text-left">
+                  <h3 className="text-xl sm:text-2xl font-semibold text-white tracking-tight mb-2 line-clamp-2 group-hover:text-amber-100 transition-colors">
+                    {project.name}
+                  </h3>
+                  <div className="flex items-center gap-1.5 text-sm text-white/85 mb-1.5">
+                    <MapPin className="w-3.5 h-3.5 shrink-0 opacity-90" aria-hidden />
+                    <span className="truncate">{project.location}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Ruler className="w-4 h-4 flex-shrink-0" />
-                    <span>면적 {project.area} · 공사 기간 {project.duration}</span>
+                  <p className="text-xs text-white/65 mb-3 line-clamp-1">
+                    면적 {project.area} · {project.duration}
+                  </p>
+                  <div className="flex items-baseline justify-between gap-3 pt-2 border-t border-white/20">
+                    <span className="text-[11px] uppercase tracking-wider text-white/55">시공비</span>
+                    <span className="text-lg sm:text-xl font-medium text-white tabular-nums">{project.budget}</span>
                   </div>
-                </div>
-
-                {/* Budget - Prominent */}
-                <div className="pt-6 border-t border-gray-100">
-                  <div className="text-sm text-gray-500 mb-1">총 시공비</div>
-                  <div className="text-3xl font-light text-black">{project.budget}</div>
+                  <p className="mt-3 text-[11px] text-white/45">상세 보기 →</p>
                 </div>
               </div>
             </Link>

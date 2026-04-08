@@ -78,3 +78,8 @@ export interface CreatePortfolioInput {
   /** 추가 이미지 URL (한 줄에 하나, 갤러리용) */
   imageUrls?: string[];
 }
+
+/** 포트폴리오 수정 시 넣는 데이터 */
+export interface UpdatePortfolioInput extends CreatePortfolioInput {
+  id: number;
+}

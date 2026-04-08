@@ -1,10 +1,31 @@
 import { useState, useEffect } from "react";
-import { TrendingUp, FileText, DollarSign, Phone, Mail, MapPin, Clock, MoreVertical, Plus, Send, Sparkles, AlertCircle, X, Image as ImageIcon, LogOut } from "lucide-react";
+import { Link } from "react-router";
+import { TrendingUp, DollarSign, Phone, Mail, MapPin, Clock, MoreVertical, Plus, Send, Sparkles, AlertCircle, X, Image as ImageIcon, LogOut, Pencil } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { getLeads, getPortfolios, createPortfolio, getSiteSetting, setSiteSetting, uploadPortfolioImages } from "../../lib/api";
+import { getLeads, getPortfolios, createPortfolio, updatePortfolio, getSiteSetting, setSiteSetting, uploadPortfolioImages } from "../../lib/api";
 import { PORTFOLIO_INDUSTRY_OPTIONS } from "../../lib/portfolioIndustries";
 import { isAdminLoggedIn, setAdminLoggedIn, clearAdminSession, checkAdminCredentials } from "../../lib/adminAuth";
 import type { Lead, Portfolio } from "../../types";
+
+function galleryUrlsTextFromPortfolio(p: Portfolio): string {
+  const urls = p.imageUrls ?? [];
+  const extras = urls.filter((u) => u && u !== p.imageUrl);
+  return extras.join("\n");
+}
+
+function emptyNewPortfolioForm() {
+  return {
+    name: "",
+    location: "",
+    area: "",
+    budget: "",
+    industry: "",
+    style: "",
+    duration: "",
+    imageUrl: "",
+    imageUrlsText: "",
+  };
+}
 
 export function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -18,20 +39,12 @@ export function AdminPage() {
   const [heroImageSaving, setHeroImageSaving] = useState(false);
   const [showHeroModal, setShowHeroModal] = useState(false);
   const [showPortfolioModal, setShowPortfolioModal] = useState(false);
+  /** null이면 추가 모드, 숫자면 해당 id 수정 모드 */
+  const [editingPortfolioId, setEditingPortfolioId] = useState<number | null>(null);
   const [portfolioSaving, setPortfolioSaving] = useState(false);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
-  const [newPortfolio, setNewPortfolio] = useState({
-    name: "",
-    location: "",
-    area: "",
-    budget: "",
-    industry: "",
-    style: "",
-    duration: "",
-    imageUrl: "",
-    imageUrlsText: "",
-  });
+  const [newPortfolio, setNewPortfolio] = useState(() => emptyNewPortfolioForm());
 
   useEffect(() => {
     setIsAuthenticated(isAdminLoggedIn());
@@ -131,7 +144,41 @@ export function AdminPage() {
     }
   };
 
-  const handleAddPortfolio = async () => {
+  const closePortfolioModal = () => {
+    setShowPortfolioModal(false);
+    setEditingPortfolioId(null);
+    setNewPortfolio(emptyNewPortfolioForm());
+    setCoverFile(null);
+    setGalleryFiles([]);
+  };
+
+  const openAddPortfolioModal = () => {
+    setEditingPortfolioId(null);
+    setNewPortfolio(emptyNewPortfolioForm());
+    setCoverFile(null);
+    setGalleryFiles([]);
+    setShowPortfolioModal(true);
+  };
+
+  const openEditPortfolioModal = (p: Portfolio) => {
+    setEditingPortfolioId(p.id);
+    setNewPortfolio({
+      name: p.name,
+      location: p.location,
+      area: p.area,
+      budget: p.budget,
+      industry: p.industry,
+      style: p.style,
+      duration: p.duration,
+      imageUrl: p.imageUrl,
+      imageUrlsText: galleryUrlsTextFromPortfolio(p),
+    });
+    setCoverFile(null);
+    setGalleryFiles([]);
+    setShowPortfolioModal(true);
+  };
+
+  const handleSavePortfolio = async () => {
     if (!newPortfolio.name || !newPortfolio.location) {
       alert("프로젝트명과 위치는 필수 입력 항목입니다.");
       return;
@@ -147,38 +194,48 @@ export function AdminPage() {
         .map((s) => s.trim())
         .filter(Boolean);
       const mergedExtraUrls = [...uploadedGalleryUrls, ...extraUrls];
-      const finalImageUrl = uploadedCoverUrl || newPortfolio.imageUrl || mergedExtraUrls[0] || "";
+
+      const existing = editingPortfolioId != null ? portfolios.find((x) => x.id === editingPortfolioId) : undefined;
+      const fallbackCover = existing?.imageUrl ?? "";
+      const finalImageUrl =
+        uploadedCoverUrl || newPortfolio.imageUrl.trim() || mergedExtraUrls[0] || fallbackCover;
       if (!finalImageUrl) {
         alert("대표 이미지 파일 또는 URL을 최소 1개 입력해 주세요.");
         return;
       }
-      const created = await createPortfolio({
-        name: newPortfolio.name,
-        location: newPortfolio.location,
-        area: newPortfolio.area,
-        budget: newPortfolio.budget,
-        industry: newPortfolio.industry,
-        style: newPortfolio.style,
-        duration: newPortfolio.duration,
-        imageUrl: finalImageUrl,
-        imageUrls: mergedExtraUrls,
-      });
-      setPortfolios((prev) => [created, ...prev]);
-      setShowPortfolioModal(false);
-      setNewPortfolio({
-        name: "",
-        location: "",
-        area: "",
-        budget: "",
-        industry: "",
-        style: "",
-        duration: "",
-        imageUrl: "",
-        imageUrlsText: "",
-      });
-      setCoverFile(null);
-      setGalleryFiles([]);
-      alert("포트폴리오가 성공적으로 추가되었습니다!");
+
+      if (editingPortfolioId != null) {
+        const updated = await updatePortfolio({
+          id: editingPortfolioId,
+          name: newPortfolio.name,
+          location: newPortfolio.location,
+          area: newPortfolio.area,
+          budget: newPortfolio.budget,
+          industry: newPortfolio.industry,
+          style: newPortfolio.style,
+          duration: newPortfolio.duration,
+          imageUrl: finalImageUrl,
+          imageUrls: mergedExtraUrls,
+        });
+        setPortfolios((prev) => prev.map((x) => (x.id === updated.id ? updated : x)));
+        closePortfolioModal();
+        alert("포트폴리오가 수정되었습니다.");
+      } else {
+        const created = await createPortfolio({
+          name: newPortfolio.name,
+          location: newPortfolio.location,
+          area: newPortfolio.area,
+          budget: newPortfolio.budget,
+          industry: newPortfolio.industry,
+          style: newPortfolio.style,
+          duration: newPortfolio.duration,
+          imageUrl: finalImageUrl,
+          imageUrls: mergedExtraUrls,
+        });
+        setPortfolios((prev) => [created, ...prev]);
+        closePortfolioModal();
+        alert("포트폴리오가 성공적으로 추가되었습니다!");
+      }
     } catch (err) {
       console.error(err);
       alert("저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
@@ -294,7 +351,7 @@ export function AdminPage() {
             </button>
             <button
               type="button"
-              onClick={() => setShowPortfolioModal(true)}
+              onClick={openAddPortfolioModal}
               className="flex items-center gap-3 px-6 py-4 bg-white border-2 border-gray-200 rounded-2xl hover:border-black hover:bg-gray-50 transition-all text-left group shadow-sm min-h-[75px]"
             >
               <div className="w-10 h-10 rounded-xl bg-gray-100 group-hover:bg-black flex items-center justify-center transition-colors shrink-0">
@@ -312,6 +369,55 @@ export function AdminPage() {
               <span className="font-medium">SMS 견적 발송</span>
             </button>
           </div>
+        </div>
+
+        {/* 등록된 포트폴리오 */}
+        <div className="mb-12">
+          <h2 className="text-xl font-semibold mb-4">등록된 포트폴리오</h2>
+          {!loading && portfolios.length === 0 && (
+            <p className="text-gray-500 text-sm">등록된 항목이 없습니다. 빠른 작업에서 추가하세요.</p>
+          )}
+          {!loading && portfolios.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {portfolios.map((p) => (
+                <div
+                  key={p.id}
+                  className="flex gap-4 p-4 bg-white rounded-2xl border border-gray-100 shadow-sm hover:border-gray-200 transition-colors"
+                >
+                  <div className="w-24 h-24 rounded-xl overflow-hidden bg-gray-100 shrink-0">
+                    {p.imageUrl ? (
+                      <img src={p.imageUrl} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">이미지 없음</div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0 flex flex-col gap-2">
+                    <div className="font-semibold text-gray-900 truncate">{p.name}</div>
+                    <div className="text-xs text-gray-500 truncate">{p.location}</div>
+                    <div className="text-xs text-gray-400">{p.industry || "업종 미지정"}</div>
+                    <div className="flex flex-wrap gap-2 mt-auto pt-1">
+                      <button
+                        type="button"
+                        onClick={() => openEditPortfolioModal(p)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-black text-white hover:bg-gray-900 transition-colors"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                        수정
+                      </button>
+                      <Link
+                        to={`/portfolio/${p.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        미리보기
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -555,11 +661,18 @@ export function AdminPage() {
           <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-200 px-8 py-6 flex items-center justify-between rounded-t-3xl">
               <div>
-                <h2 className="text-3xl font-semibold mb-1">포트폴리오 추가</h2>
-                <p className="text-sm text-gray-600">새로운 프로젝트를 등록하세요</p>
+                <h2 className="text-3xl font-semibold mb-1">
+                  {editingPortfolioId != null ? "포트폴리오 수정" : "포트폴리오 추가"}
+                </h2>
+                <p className="text-sm text-gray-600">
+                  {editingPortfolioId != null
+                    ? "내용을 변경한 뒤 저장하세요. 새 파일을 선택하면 기존 이미지를 덮어씁니다."
+                    : "새로운 프로젝트를 등록하세요"}
+                </p>
               </div>
               <button
-                onClick={() => setShowPortfolioModal(false)}
+                type="button"
+                onClick={closePortfolioModal}
                 className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
               >
                 <X className="w-5 h-5" />
@@ -736,17 +849,19 @@ export function AdminPage() {
 
             <div className="sticky bottom-0 bg-gray-50 px-8 py-6 flex gap-3 rounded-b-3xl border-t border-gray-200">
               <button
-                onClick={() => setShowPortfolioModal(false)}
+                type="button"
+                onClick={closePortfolioModal}
                 className="flex-1 px-6 py-3 border-2 border-gray-300 rounded-full hover:bg-gray-100 transition-all font-medium"
               >
                 취소
               </button>
               <button
-                onClick={handleAddPortfolio}
+                type="button"
+                onClick={handleSavePortfolio}
                 disabled={portfolioSaving}
                 className="flex-1 px-6 py-3 bg-black text-white rounded-full hover:bg-gray-900 transition-all font-medium shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                {portfolioSaving ? "업로드/저장 중..." : "추가하기"}
+                {portfolioSaving ? "업로드/저장 중..." : editingPortfolioId != null ? "저장하기" : "추가하기"}
               </button>
             </div>
           </div>

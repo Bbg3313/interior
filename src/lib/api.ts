@@ -1,5 +1,5 @@
 import { supabase, assertSupabaseConfigured } from "./supabase";
-import type { Lead, Portfolio, Review, CreateLeadInput, CreatePortfolioInput, LeadStatus } from "../types";
+import type { Lead, Portfolio, Review, CreateLeadInput, CreatePortfolioInput, UpdatePortfolioInput, LeadStatus } from "../types";
 
 const PORTFOLIO_BUCKET = "portfolio-images";
 
@@ -132,6 +132,29 @@ export async function createPortfolio(input: CreatePortfolioInput): Promise<Port
       image_url: input.imageUrl,
       image_urls: allUrls,
     })
+    .select()
+    .single();
+  if (error) throw error;
+  return rowToPortfolio(data as Record<string, unknown>);
+}
+
+export async function updatePortfolio(input: UpdatePortfolioInput): Promise<Portfolio> {
+  assertSupabaseConfigured();
+  const allUrls = [input.imageUrl, ...(input.imageUrls ?? [])].filter(Boolean);
+  const { data, error } = await supabase
+    .from("portfolios")
+    .update({
+      name: input.name,
+      location: input.location,
+      area: input.area,
+      budget: input.budget,
+      industry: input.industry,
+      style: input.style,
+      duration: input.duration,
+      image_url: input.imageUrl,
+      image_urls: allUrls,
+    })
+    .eq("id", input.id)
     .select()
     .single();
   if (error) throw error;

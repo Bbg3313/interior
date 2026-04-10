@@ -1,20 +1,37 @@
-import React, { useState } from "react";
-import { Check, Coffee, Utensils, Briefcase, Store, ArrowRight, ArrowLeft, Sparkles, X, Phone, Mail, User, MessageSquare } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import {
+  Check,
+  ArrowRight,
+  ArrowLeft,
+  Sparkles,
+  X,
+  Phone,
+  Mail,
+  User,
+  MessageSquare,
+  Hammer,
+  Layers,
+  Paintbrush,
+  Grid3x3,
+  Info,
+} from "lucide-react";
 import { createLead } from "../../lib/api";
-
-type BusinessType = "cafe" | "restaurant" | "office" | "retail" | null;
-
-interface EstimateData {
-  businessType: BusinessType;
-  area: number;
-  options: {
-    flooring: boolean;
-    lighting: boolean;
-    hvac: boolean;
-    furniture: boolean;
-    signage: boolean;
-  };
-}
+import { PORTFOLIO_INDUSTRY_OPTIONS } from "../../lib/portfolioIndustries";
+import {
+  ESTIMATE_DEMOLITION,
+  ESTIMATE_FLOORING_OPTIONS,
+  ESTIMATE_WALLPAPER_OPTIONS,
+  ESTIMATE_OPTIONAL_TRADES,
+  ESTIMATE_WALL_M2_OPTIONS,
+  wallM2ContributionPerPyeong,
+  defaultEstimateFormState,
+  computeEstimateRange,
+  formatEstimateSummaryForLead,
+  totalPerPyeongFromLines,
+  type EstimateFormState,
+  type FlooringId,
+  type WallpaperId,
+} from "../../lib/estimateSystem";
 
 interface ContactData {
   name: string;
@@ -23,20 +40,11 @@ interface ContactData {
   message: string;
 }
 
+const STEPS = 3;
+
 export function EstimatePage() {
   const [step, setStep] = useState(1);
-  const [estimateData, setEstimateData] = useState<EstimateData>({
-    businessType: null,
-    area: 30,
-    options: {
-      flooring: false,
-      lighting: false,
-      hvac: false,
-      furniture: false,
-      signage: false,
-    },
-  });
-
+  const [form, setForm] = useState<EstimateFormState>(() => defaultEstimateFormState());
   const [showContactModal, setShowContactModal] = useState(false);
   const [contactData, setContactData] = useState<ContactData>({
     name: "",
@@ -44,67 +52,35 @@ export function EstimatePage() {
     email: "",
     message: "",
   });
-
-  const businessTypes = [
-    { id: "cafe" as BusinessType, name: "카페", icon: Coffee, basePrice: 180 },
-    { id: "restaurant" as BusinessType, name: "레스토랑", icon: Utensils, basePrice: 200 },
-    { id: "office" as BusinessType, name: "오피스", icon: Briefcase, basePrice: 150 },
-    { id: "retail" as BusinessType, name: "리테일", icon: Store, basePrice: 170 },
-  ];
-
-  const additionalOptions = [
-    { id: "flooring", name: "바닥재 시공", price: 30 },
-    { id: "lighting", name: "조명 설치", price: 25 },
-    { id: "hvac", name: "냉난방 시스템", price: 50 },
-    { id: "furniture", name: "가구 제작", price: 40 },
-    { id: "signage", name: "간판/사인물", price: 35 },
-  ];
-
-  const calculateEstimate = () => {
-    if (!estimateData.businessType) return { min: 0, max: 0 };
-    
-    const selectedBusiness = businessTypes.find(b => b.id === estimateData.businessType);
-    const basePrice = selectedBusiness?.basePrice || 0;
-    
-    let optionsPrice = 0;
-    additionalOptions.forEach(option => {
-      if (estimateData.options[option.id as keyof typeof estimateData.options]) {
-        optionsPrice += option.price;
-      }
-    });
-
-    const totalPricePerPyeong = basePrice + optionsPrice;
-    const min = Math.floor((totalPricePerPyeong * estimateData.area) / 10) * 10;
-    const max = Math.floor((totalPricePerPyeong * estimateData.area * 1.3) / 10) * 10;
-
-    return { min, max };
-  };
-
-  const estimate = calculateEstimate();
-
   const [submitting, setSubmitting] = useState(false);
+
+  const { min, max, lines } = useMemo(() => computeEstimateRange(form), [form]);
+  const perPyeongTotal = totalPerPyeongFromLines(lines);
 
   const handleSubmitQuote = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!contactData.name || !contactData.phone || !contactData.email) {
       alert("이름, 연락처, 이메일은 필수 입력 항목입니다.");
       return;
     }
-    if (!estimateData.businessType) return;
+    if (!form.industry) return;
 
     setSubmitting(true);
     try {
-      const businessName = businessTypes.find((b) => b.id === estimateData.businessType)?.name ?? estimateData.businessType;
+      const summaryBlock = formatEstimateSummaryForLead(form, lines);
+      const combinedMessage = [summaryBlock, contactData.message.trim() && `---\n${contactData.message.trim()}`]
+        .filter(Boolean)
+        .join("\n\n");
+
       await createLead({
         clientName: contactData.name,
         phone: contactData.phone,
         email: contactData.email,
-        message: contactData.message,
-        businessType: businessName,
-        area: estimateData.area,
-        estimateMin: estimate.min,
-        estimateMax: estimate.max,
+        message: combinedMessage,
+        businessType: form.industry,
+        area: form.area,
+        estimateMin: min,
+        estimateMax: max,
       });
       alert("견적 요청이 완료되었습니다. 곧 연락드리겠습니다.");
       setShowContactModal(false);
@@ -117,152 +93,301 @@ export function EstimatePage() {
     }
   };
 
+  const setFlooring = (id: FlooringId) => setForm((f) => ({ ...f, flooringId: id }));
+  const setWallpaper = (id: WallpaperId) => setForm((f) => ({ ...f, wallpaperId: id }));
+  const toggleOptional = (id: string) =>
+    setForm((f) => ({
+      ...f,
+      optionalTradeIds: { ...f.optionalTradeIds, [id]: !f.optionalTradeIds[id] },
+    }));
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
         <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-16">
+          <div className="text-center mb-12 md:mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-50 rounded-full border border-yellow-200 mb-6">
-              <Sparkles className="w-4 h-4 text-yellow-600" />
-              <span className="text-sm text-yellow-900 font-medium">1분 완성</span>
+              <Grid3x3 className="w-4 h-4 text-yellow-600" />
+              <span className="text-sm text-yellow-900 font-medium">공종 단가표 기반</span>
             </div>
-            <h1 className="text-5xl md:text-6xl mb-6 tracking-tight">
-              인테리어 견적<br />계산기
+            <h1 className="text-4xl md:text-5xl lg:text-6xl mb-4 tracking-tight">
+              인테리어 견적 시스템
             </h1>
-            <p className="text-xl text-gray-600">
-              간단한 정보 입력으로 예상 견적을<br />확인하세요
+            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+              업종·면적·공종을 선택하면 기본 공종 단가(만원/평)로 예상 범위를 산출합니다.
+              <span className="block text-sm text-gray-500 mt-2">
+                실제 금액은 현장 조건·브랜드·폐기물량 등에 따라 달라질 수 있습니다.
+              </span>
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Side - Input Form */}
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-10">
-                {/* Step 1: Business Type Selection */}
+              <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 md:p-10">
+                <div className="flex items-center gap-2 mb-8">
+                  {Array.from({ length: STEPS }, (_, i) => (
+                    <React.Fragment key={i}>
+                      <button
+                        type="button"
+                        onClick={() => setStep(i + 1)}
+                        className={`w-9 h-9 rounded-full text-sm font-semibold transition-colors ${
+                          step === i + 1
+                            ? "bg-black text-white"
+                            : step > i + 1
+                              ? "bg-gray-200 text-gray-800"
+                              : "bg-gray-100 text-gray-400"
+                        }`}
+                      >
+                        {i + 1}
+                      </button>
+                      {i < STEPS - 1 && <div className="flex-1 h-0.5 bg-gray-100 max-w-12" />}
+                    </React.Fragment>
+                  ))}
+                  <span className="text-sm text-gray-500 ml-2">
+                    {step === 1 && "업종"}
+                    {step === 2 && "면적"}
+                    {step === 3 && "공종 구성"}
+                  </span>
+                </div>
+
                 {step === 1 && (
                   <div>
-                    <h2 className="text-3xl mb-8">어떤 업종인가요?</h2>
-                    <div className="mb-10">
-                      <select
-                        value={estimateData.businessType || ''}
-                        onChange={(e) => setEstimateData({...estimateData, businessType: e.target.value as BusinessType})}
-                        className="w-full px-6 py-5 text-xl border-2 border-gray-200 rounded-2xl focus:border-black focus:outline-none transition-all bg-white hover:border-gray-300"
-                      >
-                        <option value="">업종을 선택하세요</option>
-                        {businessTypes.map((type) => (
-                          <option key={type.id} value={type.id}>
-                            {type.name} (평당 {type.basePrice}만원~)
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                    <h2 className="text-2xl md:text-3xl mb-2">어떤 업종인가요?</h2>
+                    <p className="text-gray-600 mb-8">포트폴리오·현장 유형과 동일한 분류입니다.</p>
+                    <select
+                      value={form.industry}
+                      onChange={(e) => setForm({ ...form, industry: e.target.value })}
+                      className="w-full px-6 py-5 text-lg border-2 border-gray-200 rounded-2xl focus:border-black focus:outline-none transition-all bg-white hover:border-gray-300"
+                    >
+                      <option value="">업종을 선택하세요</option>
+                      {PORTFOLIO_INDUSTRY_OPTIONS.map((label) => (
+                        <option key={label} value={label}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
                     <div className="mt-10 flex justify-end">
                       <button
+                        type="button"
                         onClick={() => setStep(2)}
-                        disabled={!estimateData.businessType}
-                        className="flex items-center gap-2 px-8 py-4 bg-black text-white rounded-full disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-gray-900 transition-all shadow-lg hover:shadow-xl disabled:shadow-none hover:scale-105"
+                        disabled={!form.industry}
+                        className="flex items-center gap-2 px-8 py-4 bg-black text-white rounded-full disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-gray-900 transition-all shadow-lg hover:shadow-xl disabled:shadow-none"
                       >
-                        다음 단계 <ArrowRight className="w-5 h-5" />
+                        다음 <ArrowRight className="w-5 h-5" />
                       </button>
                     </div>
                   </div>
                 )}
 
-                {/* Step 2: Area Input */}
                 {step === 2 && (
                   <div>
-                    <h2 className="text-3xl mb-8">공간의 면적은 얼마나 되나요?</h2>
-                    <div className="mb-10">
-                      <div className="text-center mb-8">
-                        <div className="text-7xl font-light mb-4">{estimateData.area}<span className="text-4xl text-gray-400 ml-2">평</span></div>
-                        <div className="text-lg text-gray-600">약 {Math.round(estimateData.area * 3.3)}㎡</div>
+                    <h2 className="text-2xl md:text-3xl mb-2">공간 면적</h2>
+                    <p className="text-gray-600 mb-8">시공 면적(평)을 선택하세요.</p>
+                    <div className="text-center mb-8">
+                      <div className="text-6xl md:text-7xl font-light mb-2">
+                        {form.area}
+                        <span className="text-3xl text-gray-400 ml-2">평</span>
                       </div>
-                      
-                      <div className="px-4">
-                        <input
-                          type="range"
-                          value={estimateData.area}
-                          onChange={(e) => setEstimateData({...estimateData, area: Number(e.target.value)})}
-                          className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-lg"
-                          min="10"
-                          max="200"
-                          step="5"
-                        />
-                        <div className="flex justify-between text-sm text-gray-500 mt-3">
-                          <span>10평</span>
-                          <span>200평</span>
-                        </div>
-                      </div>
-
-                      <div className="mt-8 bg-gradient-to-br from-gray-50 to-white p-6 rounded-2xl border border-gray-100">
-                        <div className="text-sm text-gray-600 mb-2">💡 참고사항</div>
-                        <div className="text-gray-700">1평 = 약 3.3㎡ (제곱미터)</div>
-                      </div>
+                      <div className="text-gray-600">약 {Math.round(form.area * 3.3)}㎡</div>
                     </div>
-
-                    <div className="flex justify-between">
+                    <input
+                      type="range"
+                      value={form.area}
+                      onChange={(e) => setForm({ ...form, area: Number(e.target.value) })}
+                      className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-lg"
+                      min={10}
+                      max={200}
+                      step={5}
+                    />
+                    <div className="flex justify-between text-sm text-gray-500 mt-3">
+                      <span>10평</span>
+                      <span>200평</span>
+                    </div>
+                    <div className="mt-10 flex justify-between">
                       <button
+                        type="button"
                         onClick={() => setStep(1)}
                         className="flex items-center gap-2 px-8 py-4 border-2 border-gray-200 rounded-full hover:bg-gray-50 transition-all"
                       >
                         <ArrowLeft className="w-5 h-5" /> 이전
                       </button>
                       <button
+                        type="button"
                         onClick={() => setStep(3)}
-                        className="flex items-center gap-2 px-8 py-4 bg-black text-white rounded-full hover:bg-gray-900 transition-all shadow-lg hover:shadow-xl hover:scale-105"
+                        className="flex items-center gap-2 px-8 py-4 bg-black text-white rounded-full hover:bg-gray-900 transition-all shadow-lg"
                       >
-                        다음 단계 <ArrowRight className="w-5 h-5" />
+                        다음 <ArrowRight className="w-5 h-5" />
                       </button>
                     </div>
                   </div>
                 )}
 
-                {/* Step 3: Additional Options */}
                 {step === 3 && (
-                  <div>
-                    <h2 className="text-3xl mb-8">추가 옵션 선택</h2>
-                    <div className="space-y-4 mb-10">
-                      {additionalOptions.map((option) => (
-                        <label
-                          key={option.id}
-                          className={`flex items-center p-6 border-2 rounded-2xl cursor-pointer transition-all hover:shadow-lg ${
-                            estimateData.options[option.id as keyof typeof estimateData.options]
-                              ? 'border-black bg-gray-50'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                        >
-                          <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all flex-shrink-0 ${
-                            estimateData.options[option.id as keyof typeof estimateData.options]
-                              ? 'bg-black border-black'
-                              : 'border-gray-300'
-                          }`}>
-                            {estimateData.options[option.id as keyof typeof estimateData.options] && (
-                              <Check className="w-4 h-4 text-white" />
-                            )}
-                          </div>
-                          <input
-                            type="checkbox"
-                            checked={estimateData.options[option.id as keyof typeof estimateData.options]}
-                            onChange={(e) => setEstimateData({
-                              ...estimateData,
-                              options: {
-                                ...estimateData.options,
-                                [option.id]: e.target.checked,
-                              }
-                            })}
-                            className="sr-only"
-                          />
-                          <div className="ml-4 flex-1">
-                            <div className="font-semibold text-lg">{option.name}</div>
-                            <div className="text-sm text-gray-600">평당 +{option.price}만원</div>
-                          </div>
-                        </label>
-                      ))}
+                  <div className="space-y-10">
+                    <div>
+                      <h2 className="text-2xl md:text-3xl mb-2">공종 구성</h2>
+                      <p className="text-gray-600 text-sm md:text-base">
+                        단가표(만원/평)를 기준으로 선택합니다. 필름·도장은 ㎡ 단가를 벽면적 가정으로 환산합니다.
+                      </p>
                     </div>
 
-                    <div className="flex justify-between">
+                    {/* 철거 */}
+                    <section className="rounded-2xl border-2 border-gray-100 p-6 bg-gray-50/50">
+                      <div className="flex items-start gap-3 mb-4">
+                        <Hammer className="w-6 h-6 text-gray-800 shrink-0 mt-0.5" />
+                        <div>
+                          <h3 className="text-lg font-semibold">{ESTIMATE_DEMOLITION.label}</h3>
+                          <p className="text-sm text-gray-600 mt-1">{ESTIMATE_DEMOLITION.note}</p>
+                        </div>
+                      </div>
+                      <label className="flex items-center gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={form.includeDemolition}
+                          onChange={(e) => setForm({ ...form, includeDemolition: e.target.checked })}
+                          className="w-5 h-5 rounded border-gray-300"
+                        />
+                        <span className="font-medium">
+                          포함 ({ESTIMATE_DEMOLITION.pricePerPyeong}만원/평)
+                        </span>
+                      </label>
+                    </section>
+
+                    {/* 바닥 */}
+                    <section className="rounded-2xl border-2 border-gray-100 p-6">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Layers className="w-6 h-6 text-gray-800" />
+                        <h3 className="text-lg font-semibold">바닥마감</h3>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {ESTIMATE_FLOORING_OPTIONS.map((opt) => (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => setFlooring(opt.id)}
+                            className={`text-left p-4 rounded-xl border-2 transition-all ${
+                              form.flooringId === opt.id
+                                ? "border-black bg-gray-50"
+                                : "border-gray-200 hover:border-gray-300"
+                            }`}
+                          >
+                            <div className="font-medium">{opt.label}</div>
+                            {opt.id !== "none" && (
+                              <div className="text-sm text-yellow-700 mt-1">{opt.pricePerPyeong}만원/평</div>
+                            )}
+                            {opt.note && <div className="text-xs text-gray-500 mt-1">{opt.note}</div>}
+                          </button>
+                        ))}
+                      </div>
+                    </section>
+
+                    {/* 필름 / 도장 */}
+                    <section className="rounded-2xl border-2 border-gray-100 p-6">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Paintbrush className="w-6 h-6 text-gray-800" />
+                        <h3 className="text-lg font-semibold">벽면 마감 (㎡ 단가)</h3>
+                      </div>
+                      <p className="text-xs text-gray-500 mb-4 flex items-start gap-1">
+                        <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                        견적 합계에는 바닥면적 대비 벽·천장 면적 비율로 평당 환산해 반영합니다.
+                      </p>
+                      <div className="space-y-3">
+                        {ESTIMATE_WALL_M2_OPTIONS.map((opt) => {
+                          const key = opt.id === "film" ? "wallFilm" : "wallPaint";
+                          const checked = form[key];
+                          const perPy = wallM2ContributionPerPyeong(opt.pricePerM2);
+                          return (
+                            <label
+                              key={opt.id}
+                              className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer ${
+                                checked ? "border-black bg-gray-50" : "border-gray-200"
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={checked}
+                                onChange={(e) => setForm({ ...form, [key]: e.target.checked })}
+                                className="w-5 h-5 mt-0.5 rounded border-gray-300"
+                              />
+                              <div>
+                                <div className="font-medium">{opt.label}</div>
+                                <div className="text-sm text-gray-600">
+                                  {opt.pricePerM2}만원/㎡ · 환산 약 {perPy}만원/평
+                                </div>
+                                <div className="text-xs text-gray-500 mt-1">{opt.note}</div>
+                              </div>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </section>
+
+                    {/* 도배 */}
+                    <section className="rounded-2xl border-2 border-gray-100 p-6">
+                      <h3 className="text-lg font-semibold mb-4">도배</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {ESTIMATE_WALLPAPER_OPTIONS.map((opt) => (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => setWallpaper(opt.id)}
+                            className={`text-left p-4 rounded-xl border-2 transition-all ${
+                              form.wallpaperId === opt.id
+                                ? "border-black bg-gray-50"
+                                : "border-gray-200 hover:border-gray-300"
+                            }`}
+                          >
+                            <div className="font-medium">{opt.label}</div>
+                            {opt.id !== "none" && (
+                              <div className="text-sm text-yellow-700 mt-1">{opt.pricePerPyeong}만원/평</div>
+                            )}
+                            {opt.note && <div className="text-xs text-gray-500 mt-1">{opt.note}</div>}
+                          </button>
+                        ))}
+                      </div>
+                    </section>
+
+                    {/* 기타 공종 */}
+                    <section className="rounded-2xl border-2 border-gray-100 p-6">
+                      <h3 className="text-lg font-semibold mb-4">기타 공종 (중복 선택)</h3>
+                      <div className="space-y-3">
+                        {ESTIMATE_OPTIONAL_TRADES.map((t) => (
+                          <label
+                            key={t.id}
+                            className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                              form.optionalTradeIds[t.id]
+                                ? "border-black bg-gray-50"
+                                : "border-gray-200 hover:border-gray-300"
+                            }`}
+                          >
+                            <div
+                              className={`w-6 h-6 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 ${
+                                form.optionalTradeIds[t.id] ? "bg-black border-black" : "border-gray-300"
+                              }`}
+                            >
+                              {form.optionalTradeIds[t.id] && <Check className="w-4 h-4 text-white" />}
+                            </div>
+                            <input
+                              type="checkbox"
+                              className="sr-only"
+                              checked={form.optionalTradeIds[t.id]}
+                              onChange={() => toggleOptional(t.id)}
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium flex flex-wrap items-baseline gap-2">
+                                {t.label}
+                                <span className="text-sm text-yellow-700">{t.pricePerPyeong}만원/평</span>
+                              </div>
+                              <div className="text-xs text-gray-500 mt-1">{t.note}</div>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    </section>
+
+                    <div className="flex justify-between pt-4">
                       <button
+                        type="button"
                         onClick={() => setStep(2)}
                         className="flex items-center gap-2 px-8 py-4 border-2 border-gray-200 rounded-full hover:bg-gray-50 transition-all"
                       >
@@ -274,76 +399,68 @@ export function EstimatePage() {
               </div>
             </div>
 
-            {/* Right Side - Estimate Summary (Sticky) */}
+            {/* 요약 패널 */}
             <div className="lg:col-span-1">
-              <div className="bg-white border-2 border-gray-200 rounded-3xl shadow-lg p-8 sticky top-[150px]">
+              <div className="bg-white border-2 border-gray-200 rounded-3xl shadow-lg p-6 md:p-8 lg:sticky lg:top-[120px]">
                 <div className="flex items-center gap-2 mb-6">
                   <Sparkles className="w-5 h-5 text-yellow-600" />
-                  <h3 className="text-xl font-semibold text-black">실시간 견적 요약</h3>
+                  <h3 className="text-lg font-semibold">견적 요약</h3>
                 </div>
-                
-                <div className="space-y-6 mb-8">
-                  <div className="pb-6 border-b border-gray-100">
-                    <div className="text-sm text-gray-600 mb-2">업종</div>
-                    <div className="font-semibold text-lg text-black">
-                      {estimateData.businessType 
-                        ? businessTypes.find(b => b.id === estimateData.businessType)?.name
-                        : <span className="text-gray-400">미선택</span>}
-                    </div>
-                  </div>
 
-                  <div className="pb-6 border-b border-gray-100">
-                    <div className="text-sm text-gray-600 mb-2">면적</div>
-                    <div className="font-semibold text-lg text-black">{estimateData.area}평</div>
+                <div className="space-y-4 mb-6 text-sm border-b border-gray-100 pb-6">
+                  <div>
+                    <div className="text-gray-500">업종</div>
+                    <div className="font-medium">{form.industry || "—"}</div>
                   </div>
-
-                  <div className="pb-6 border-b border-gray-100">
-                    <div className="text-sm text-gray-600 mb-2">선택한 옵션</div>
-                    <div className="text-sm">
-                      {Object.entries(estimateData.options).filter(([_, v]) => v).length === 0 ? (
-                        <span className="text-gray-400">선택된 옵션 없음</span>
-                      ) : (
-                        <div className="space-y-2">
-                          {additionalOptions.map(option => 
-                            estimateData.options[option.id as keyof typeof estimateData.options] && (
-                              <div key={option.id} className="flex items-center gap-2 text-gray-700">
-                                <Check className="w-4 h-4 text-yellow-600" />
-                                <span>{option.name}</span>
-                              </div>
-                            )
-                          )}
-                        </div>
-                      )}
+                  <div>
+                    <div className="text-gray-500">면적</div>
+                    <div className="font-medium">{form.area}평</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 mb-2">선택 공종 (평당 합산)</div>
+                    {lines.length === 0 ? (
+                      <p className="text-gray-400 text-xs">철거 외 선택 없음 시에도 철거만 반영됩니다.</p>
+                    ) : (
+                      <ul className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                        {lines.map((l, i) => (
+                          <li key={i} className="flex justify-between gap-2 text-xs">
+                            <span className="text-gray-700 truncate">{l.label}</span>
+                            <span className="shrink-0 text-gray-900 tabular-nums">{l.perPyeong}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    <div className="flex justify-between mt-3 pt-3 border-t border-dashed border-gray-200 font-semibold text-sm">
+                      <span>참고 평당 합계</span>
+                      <span className="tabular-nums">{perPyeongTotal}만원/평</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-6 border-t-2 border-gray-200">
-                  <div className="text-sm text-gray-600 mb-3">예상 견적 범위</div>
-                  {estimateData.businessType ? (
+                <div className="pt-2">
+                  <div className="text-sm text-gray-600 mb-2">예상 범위 (참고)</div>
+                  {form.industry ? (
                     <>
-                      <div className="text-4xl font-light mb-2 bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent">
-                        {estimate.min.toLocaleString()}만원
+                      <div className="text-3xl md:text-4xl font-light bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent tabular-nums">
+                        {min.toLocaleString()}만원
                       </div>
-                      <div className="text-lg text-gray-600 mb-8">
-                        ~ {estimate.max.toLocaleString()}만원
-                      </div>
+                      <div className="text-gray-600 mb-6">~ {max.toLocaleString()}만원</div>
                     </>
                   ) : (
-                    <div className="text-3xl text-gray-300 mb-8">-</div>
+                    <div className="text-2xl text-gray-300 mb-6">업종을 선택하세요</div>
                   )}
 
-                  <button 
-                    disabled={!estimateData.businessType}
-                    className="w-full py-4 bg-gradient-to-r from-yellow-400 to-amber-400 hover:from-yellow-500 hover:to-amber-500 text-black rounded-full transition-all font-semibold disabled:from-gray-200 disabled:to-gray-200 disabled:cursor-not-allowed disabled:text-gray-400 shadow-lg hover:shadow-xl hover:scale-105"
+                  <button
+                    type="button"
+                    disabled={!form.industry}
                     onClick={() => setShowContactModal(true)}
+                    className="w-full py-4 bg-gradient-to-r from-yellow-400 to-amber-400 hover:from-yellow-500 hover:to-amber-500 text-black rounded-full transition-all font-semibold disabled:from-gray-200 disabled:to-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed shadow-lg"
                   >
                     정확한 견적 요청하기
                   </button>
-
-                  <div className="mt-4 text-xs text-gray-500 text-center">
-                    * 실제 견적은 현장 상황에 따라 달라질 수 있습니다
-                  </div>
+                  <p className="mt-3 text-[11px] text-gray-500 text-center leading-relaxed">
+                    * 본 산출은 단가표 기준 자동 합산입니다. 현장 실측 후 확정 견적이 발행됩니다.
+                  </p>
                 </div>
               </div>
             </div>
@@ -351,18 +468,18 @@ export function EstimatePage() {
         </div>
       </div>
 
-      {/* Contact Modal */}
       {showContactModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-6">
           <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-8 py-6 flex items-center justify-between rounded-t-3xl">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-8 py-6 flex items-center justify-between rounded-t-3xl z-10">
               <div>
-                <h2 className="text-3xl font-semibold mb-1">정확한 견적 요청</h2>
-                <p className="text-sm text-gray-600">연락처 정보를 입력해주세요</p>
+                <h2 className="text-2xl md:text-3xl font-semibold mb-1">견적 요청</h2>
+                <p className="text-sm text-gray-600">연락처를 남겨 주시면 담당자가 연락드립니다.</p>
               </div>
               <button
+                type="button"
                 onClick={() => setShowContactModal(false)}
-                className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
+                className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -370,91 +487,78 @@ export function EstimatePage() {
 
             <form onSubmit={handleSubmitQuote}>
               <div className="p-8 space-y-6">
-                {/* 견적 요약 */}
-                <div className="bg-gradient-to-br from-yellow-50 to-amber-50 border border-yellow-200 rounded-2xl p-6 mb-6">
-                  <div className="flex items-center gap-2 mb-3">
+                <div className="bg-gradient-to-br from-yellow-50 to-amber-50 border border-yellow-200 rounded-2xl p-6">
+                  <div className="flex items-center gap-2 mb-2">
                     <Sparkles className="w-5 h-5 text-yellow-600" />
-                    <h3 className="font-semibold text-gray-900">예상 견적</h3>
+                    <span className="font-semibold text-gray-900">예상 범위</span>
                   </div>
-                  <div className="text-3xl font-light mb-1 text-gray-900">
-                    {estimate.min.toLocaleString()}만원 ~ {estimate.max.toLocaleString()}만원
+                  <div className="text-2xl font-light text-gray-900 tabular-nums">
+                    {min.toLocaleString()}만원 ~ {max.toLocaleString()}만원
                   </div>
-                  <div className="text-sm text-gray-600">
-                    {businessTypes.find(b => b.id === estimateData.businessType)?.name} • {estimateData.area}평
+                  <div className="text-sm text-gray-600 mt-1">
+                    {form.industry} · {form.area}평 · 평당 합산 약 {perPyeongTotal}만원
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-2">
                       <User className="w-4 h-4" />
                       이름 <span className="text-red-500">*</span>
-                    </div>
+                    </span>
                   </label>
                   <input
                     type="text"
                     value={contactData.name}
-                    onChange={(e) => setContactData({...contactData, name: e.target.value})}
-                    placeholder="홍길동"
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:border-black focus:outline-none transition-colors"
+                    onChange={(e) => setContactData({ ...contactData, name: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:border-black focus:outline-none"
                     required
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-2">
                       <Phone className="w-4 h-4" />
                       연락처 <span className="text-red-500">*</span>
-                    </div>
+                    </span>
                   </label>
                   <input
                     type="tel"
                     value={contactData.phone}
-                    onChange={(e) => setContactData({...contactData, phone: e.target.value})}
-                    placeholder="010-1234-5678"
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:border-black focus:outline-none transition-colors"
+                    onChange={(e) => setContactData({ ...contactData, phone: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:border-black focus:outline-none"
                     required
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-2">
                       <Mail className="w-4 h-4" />
                       이메일 <span className="text-red-500">*</span>
-                    </div>
+                    </span>
                   </label>
                   <input
                     type="email"
                     value={contactData.email}
-                    onChange={(e) => setContactData({...contactData, email: e.target.value})}
-                    placeholder="example@email.com"
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:border-black focus:outline-none transition-colors"
+                    onChange={(e) => setContactData({ ...contactData, email: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:border-black focus:outline-none"
                     required
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-2">
                       <MessageSquare className="w-4 h-4" />
                       추가 요청사항
-                    </div>
+                    </span>
                   </label>
                   <textarea
                     value={contactData.message}
-                    onChange={(e) => setContactData({...contactData, message: e.target.value})}
-                    placeholder="프로젝트에 대한 추가 정보나 요청사항을 입력해주세요"
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:border-black focus:outline-none transition-colors resize-none"
+                    onChange={(e) => setContactData({ ...contactData, message: e.target.value })}
                     rows={4}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:border-black focus:outline-none resize-none"
+                    placeholder="현장 위치, 희망 일정 등"
                   />
-                </div>
-
-                <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
-                  <p className="text-sm text-blue-900">
-                    💡 담당자가 영업일 기준 1~2일 내에 연락드립니다
-                  </p>
                 </div>
               </div>
 
@@ -462,14 +566,14 @@ export function EstimatePage() {
                 <button
                   type="button"
                   onClick={() => setShowContactModal(false)}
-                  className="flex-1 px-6 py-3 border-2 border-gray-300 rounded-full hover:bg-gray-100 transition-all font-medium"
+                  className="flex-1 px-6 py-3 border-2 border-gray-300 rounded-full hover:bg-gray-100 font-medium"
                 >
                   취소
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-yellow-400 to-amber-400 hover:from-yellow-500 hover:to-amber-500 text-black rounded-full transition-all font-semibold shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-yellow-400 to-amber-400 text-black rounded-full font-semibold shadow-lg disabled:opacity-70"
                 >
                   {submitting ? "전송 중..." : "견적 요청하기"}
                 </button>

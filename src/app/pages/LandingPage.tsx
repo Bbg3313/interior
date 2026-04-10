@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router";
 import { ArrowRight, Sparkles, TrendingUp, FileText, Ruler, HardHat, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
-import { getPortfolios, getReviews, getSiteSetting } from "../../lib/api";
+import { getPortfolios, getReviews, getHeroImageSlides } from "../../lib/api";
 import type { Review } from "../../types";
 import { PortfolioProjectCard, mapPortfolioToCardProject, type PortfolioCardProject } from "../components/PortfolioProjectCard";
 
@@ -17,7 +17,8 @@ export function LandingPage() {
 
   const [portfolioProjects, setPortfolioProjects] = useState<PortfolioCardProject[]>([]);
   const [reviews, setReviews] = useState<Review[]>(defaultReviews);
-  const [heroImageUrl, setHeroImageUrl] = useState(defaultHeroUrl);
+  const [heroSlides, setHeroSlides] = useState<string[]>([defaultHeroUrl]);
+  const [heroActiveIndex, setHeroActiveIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [pageSize, setPageSize] = useState(1);
   const [carouselStart, setCarouselStart] = useState(0);
@@ -39,13 +40,13 @@ export function LandingPage() {
     let cancelled = false;
     (async () => {
       try {
-        const [portfolios, reviewsData, heroUrl] = await Promise.all([
+        const [portfolios, reviewsData, heroUrls] = await Promise.all([
           getPortfolios(),
           getReviews(),
-          getSiteSetting("hero_image_url"),
+          getHeroImageSlides(),
         ]);
         if (cancelled) return;
-        if (heroUrl && heroUrl.trim()) setHeroImageUrl(heroUrl.trim());
+        if (heroUrls.length > 0) setHeroSlides(heroUrls);
         setPortfolioProjects(portfolios.map(mapPortfolioToCardProject));
         if (reviewsData.length > 0) setReviews(reviewsData);
       } catch {
@@ -87,17 +88,38 @@ export function LandingPage() {
     });
   };
 
+  useEffect(() => {
+    setHeroActiveIndex(0);
+  }, [heroSlides]);
+
+  useEffect(() => {
+    if (heroSlides.length <= 1) return;
+    const t = window.setInterval(() => {
+      setHeroActiveIndex((i) => (i + 1) % heroSlides.length);
+    }, 8000);
+    return () => window.clearInterval(t);
+  }, [heroSlides.length]);
+
+  const escapeBgUrl = (url: string) => url.replace(/'/g, "%27");
+
   return (
     <div className="bg-white">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-900">
-        <div 
-          className="absolute inset-0 bg-cover bg-center opacity-40"
-          style={{
-            backgroundImage: `url('${heroImageUrl.replace(/'/g, "%27")}')`
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40" />
+        <div className="absolute inset-0" aria-hidden>
+          {heroSlides.map((url, i) => (
+            <div
+              key={`${i}-${url.slice(0, 48)}`}
+              className="absolute inset-0 bg-cover bg-center transition-opacity duration-[1400ms] ease-in-out"
+              style={{
+                backgroundImage: `url('${escapeBgUrl(url)}')`,
+                opacity: i === heroActiveIndex ? 0.4 : 0,
+                zIndex: i === heroActiveIndex ? 1 : 0,
+              }}
+            />
+          ))}
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40 z-[2]" />
         
         <div className="relative z-10 text-center px-6 max-w-6xl mx-auto py-32">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 mb-8">
@@ -137,7 +159,7 @@ export function LandingPage() {
         </div>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce">
           <div className="w-6 h-10 border-2 border-white/30 rounded-full flex items-start justify-center p-2">
             <div className="w-1 h-2 bg-white/60 rounded-full" />
           </div>

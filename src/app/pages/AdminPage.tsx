@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
-import { TrendingUp, DollarSign, Phone, Mail, MapPin, Clock, MoreVertical, Plus, Send, Sparkles, AlertCircle, X, Image as ImageIcon, LogOut, Pencil } from "lucide-react";
+import { TrendingUp, DollarSign, Phone, Mail, MapPin, Clock, MoreVertical, Plus, Send, Sparkles, AlertCircle, X, Image as ImageIcon, LogOut, Pencil, ChevronUp, ChevronDown, Trash2 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { getLeads, getPortfolios, createPortfolio, updatePortfolio, getSiteSetting, setSiteSetting, uploadPortfolioImages } from "../../lib/api";
+import { getLeads, getPortfolios, createPortfolio, updatePortfolio, getHeroImageSlides, setHeroImageSlides, uploadPortfolioImages } from "../../lib/api";
 import { PORTFOLIO_INDUSTRY_OPTIONS } from "../../lib/portfolioIndustries";
 import { isAdminLoggedIn, setAdminLoggedIn, clearAdminSession, checkAdminCredentials } from "../../lib/adminAuth";
 import type { Lead, Portfolio } from "../../types";
@@ -35,8 +35,10 @@ export function AdminPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
   const [loading, setLoading] = useState(true);
-  const [heroImageUrl, setHeroImageUrl] = useState("");
+  const [heroModalUrls, setHeroModalUrls] = useState<string[]>([]);
   const [heroImageSaving, setHeroImageSaving] = useState(false);
+  const [heroUploading, setHeroUploading] = useState(false);
+  const [heroManualUrl, setHeroManualUrl] = useState("");
   const [showHeroModal, setShowHeroModal] = useState(false);
   const [showPortfolioModal, setShowPortfolioModal] = useState(false);
   /** null이면 추가 모드, 숫자면 해당 id 수정 모드 */
@@ -52,15 +54,39 @@ export function AdminPage() {
 
   useEffect(() => {
     if (!isAuthenticated) return;
-    Promise.all([getLeads(), getPortfolios(), getSiteSetting("hero_image_url")])
-      .then(([leadsData, portfoliosData, heroUrl]) => {
+    Promise.all([getLeads(), getPortfolios()])
+      .then(([leadsData, portfoliosData]) => {
         setLeads(leadsData);
         setPortfolios(portfoliosData);
-        setHeroImageUrl(heroUrl || "");
       })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (!showHeroModal || !isAuthenticated) return;
+    getHeroImageSlides()
+      .then((list) => setHeroModalUrls(list.length > 0 ? [...list] : []))
+      .catch(() => setHeroModalUrls([]));
+  }, [showHeroModal, isAuthenticated]);
+
+  const moveHeroUrl = (index: number, dir: -1 | 1) => {
+    setHeroModalUrls((prev) => {
+      const next = index + dir;
+      if (next < 0 || next >= prev.length) return prev;
+      const copy = [...prev];
+      [copy[index], copy[next]] = [copy[next], copy[index]];
+      return copy;
+    });
+  };
+
+  const removeHeroUrl = (index: number) => {
+    setHeroModalUrls((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const updateHeroUrlAt = (index: number, value: string) => {
+    setHeroModalUrls((prev) => prev.map((u, i) => (i === index ? value : u)));
+  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -584,16 +610,19 @@ export function AdminPage() {
         </div>
       </div>
 
-      {/* Hero 이미지 변경 모달 */}
+      {/* Hero 이미지 변경 모달 (다중 이미지 · 업로드 · 순서) */}
       {showHeroModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-6">
           <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-8 py-6 flex items-center justify-between rounded-t-3xl">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-8 py-6 flex items-center justify-between rounded-t-3xl z-10">
               <div>
-                <h2 className="text-3xl font-semibold mb-1">Hero 섹션 이미지 변경</h2>
-                <p className="text-sm text-gray-600">랜딩 페이지 상단 배경 이미지 URL을 입력하세요</p>
+                <h2 className="text-3xl font-semibold mb-1">Hero 섹션 이미지</h2>
+                <p className="text-sm text-gray-600">
+                  포트폴리오와 같이 파일 업로드 가능. 위쪽이 먼저 보이며, 랜딩에서 약 8초마다 전환됩니다.
+                </p>
               </div>
               <button
+                type="button"
                 onClick={() => setShowHeroModal(false)}
                 className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
               >
@@ -602,41 +631,152 @@ export function AdminPage() {
             </div>
             <div className="p-8 space-y-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">이미지 URL</label>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  <span className="inline-flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4" />
+                    이미지 파일 업로드
+                  </span>
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  disabled={heroUploading}
+                  onChange={async (e) => {
+                    const files = Array.from(e.target.files ?? []);
+                    e.target.value = "";
+                    if (files.length === 0) return;
+                    try {
+                      setHeroUploading(true);
+                      const urls = await uploadPortfolioImages(files, "hero");
+                      setHeroModalUrls((prev) => [...prev, ...urls]);
+                    } catch (err) {
+                      console.error(err);
+                      alert("업로드에 실패했습니다.");
+                    } finally {
+                      setHeroUploading(false);
+                    }
+                  }}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:border-black focus:outline-none transition-colors file:mr-3 file:px-3 file:py-1.5 file:rounded-lg file:border-0 file:bg-black file:text-white disabled:opacity-60"
+                />
+                {heroUploading && <p className="mt-2 text-xs text-gray-500">업로드 중...</p>}
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="url"
-                  value={heroImageUrl}
-                  onChange={(e) => setHeroImageUrl(e.target.value)}
-                  placeholder="https://..."
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:border-black focus:outline-none transition-colors"
+                  value={heroManualUrl}
+                  onChange={(e) => setHeroManualUrl(e.target.value)}
+                  placeholder="https://... URL로 추가"
+                  className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-2xl focus:border-black focus:outline-none transition-colors text-sm"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      const v = heroManualUrl.trim();
+                      if (v) {
+                        setHeroModalUrls((prev) => [...prev, v]);
+                        setHeroManualUrl("");
+                      }
+                    }
+                  }}
                 />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const v = heroManualUrl.trim();
+                    if (!v) return;
+                    setHeroModalUrls((prev) => [...prev, v]);
+                    setHeroManualUrl("");
+                  }}
+                  className="px-5 py-3 rounded-2xl border-2 border-gray-200 font-medium hover:bg-gray-50 transition-colors shrink-0"
+                >
+                  URL 추가
+                </button>
               </div>
-              {heroImageUrl && (
-                <div className="rounded-2xl overflow-hidden border-2 border-gray-200 aspect-video bg-gray-100">
-                  <img
-                    src={heroImageUrl}
-                    alt="Hero 미리보기"
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                    }}
-                  />
-                </div>
-              )}
+
+              <div>
+                <p className="text-sm font-semibold text-gray-900 mb-3">등록된 이미지 순서 (위에서부터 먼저 표시)</p>
+                {heroModalUrls.length === 0 ? (
+                  <p className="text-sm text-gray-500 py-8 text-center border-2 border-dashed border-gray-200 rounded-2xl">
+                    이미지를 업로드하거나 URL을 추가하세요.
+                  </p>
+                ) : (
+                  <ul className="space-y-3">
+                    {heroModalUrls.map((url, index) => (
+                      <li
+                        key={`${index}-${url.slice(0, 40)}`}
+                        className="flex flex-col sm:flex-row gap-3 p-3 rounded-2xl border-2 border-gray-100 bg-gray-50/80"
+                      >
+                        <div className="w-full sm:w-28 h-20 shrink-0 rounded-xl overflow-hidden bg-gray-200 border border-gray-200">
+                          <img
+                            src={url}
+                            alt=""
+                            className="w-full h-full object-cover"
+                            onError={(ev) => {
+                              ev.currentTarget.style.opacity = "0.3";
+                            }}
+                          />
+                        </div>
+                        <input
+                          type="text"
+                          value={url}
+                          onChange={(e) => updateHeroUrlAt(index, e.target.value)}
+                          className="flex-1 min-w-0 px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:border-black focus:outline-none"
+                        />
+                        <div className="flex flex-row sm:flex-col gap-1 shrink-0 justify-end">
+                          <button
+                            type="button"
+                            aria-label="위로"
+                            disabled={index === 0}
+                            onClick={() => moveHeroUrl(index, -1)}
+                            className="p-2 rounded-lg border border-gray-200 bg-white hover:bg-gray-100 disabled:opacity-30"
+                          >
+                            <ChevronUp className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            aria-label="아래로"
+                            disabled={index === heroModalUrls.length - 1}
+                            onClick={() => moveHeroUrl(index, 1)}
+                            className="p-2 rounded-lg border border-gray-200 bg-white hover:bg-gray-100 disabled:opacity-30"
+                          >
+                            <ChevronDown className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            aria-label="삭제"
+                            onClick={() => removeHeroUrl(index)}
+                            className="p-2 rounded-lg border border-red-100 bg-white text-red-600 hover:bg-red-50"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
             <div className="sticky bottom-0 bg-gray-50 px-8 py-6 flex gap-3 rounded-b-3xl border-t border-gray-200">
               <button
+                type="button"
                 onClick={() => setShowHeroModal(false)}
                 className="flex-1 px-6 py-3 border-2 border-gray-300 rounded-full hover:bg-gray-100 transition-all font-medium"
               >
                 취소
               </button>
               <button
+                type="button"
                 disabled={heroImageSaving}
                 onClick={async () => {
+                  const cleaned = heroModalUrls.map((u) => u.trim()).filter(Boolean);
+                  if (cleaned.length === 0) {
+                    alert("히어로 이미지를 1장 이상 등록해 주세요.");
+                    return;
+                  }
                   setHeroImageSaving(true);
                   try {
-                    await setSiteSetting("hero_image_url", heroImageUrl);
+                    await setHeroImageSlides(cleaned);
                     alert("저장되었습니다. 랜딩 페이지를 새로고침하면 적용됩니다.");
                     setShowHeroModal(false);
                   } catch (err) {

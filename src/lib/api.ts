@@ -161,13 +161,14 @@ export async function updatePortfolio(input: UpdatePortfolioInput): Promise<Port
   return rowToPortfolio(data as Record<string, unknown>);
 }
 
-export async function uploadPortfolioImages(files: File[]): Promise<string[]> {
+export async function uploadPortfolioImages(files: File[], storageSubfolder = "portfolio"): Promise<string[]> {
   assertSupabaseConfigured();
   const uploadedUrls: string[] = [];
+  const folder = storageSubfolder.replace(/[^a-zA-Z0-9/_-]/g, "") || "portfolio";
 
   for (const file of files) {
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const path = `portfolio/${Date.now()}-${Math.random().toString(36).slice(2)}-${safeName}`;
+    const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}-${safeName}`;
 
     const { error: uploadError } = await supabase.storage
       .from(PORTFOLIO_BUCKET)
@@ -208,6 +209,38 @@ export async function getReviews(): Promise<Review[]> {
 }
 
 // --- Site settings (Hero 이미지 등) ---
+
+const HERO_IMAGE_URLS_KEY = "hero_image_urls";
+const HERO_IMAGE_URL_LEGACY_KEY = "hero_image_url";
+
+function parseHeroUrlsJson(raw: string): string[] {
+  const t = raw.trim();
+  if (!t) return [];
+  try {
+    const v = JSON.parse(t) as unknown;
+    if (!Array.isArray(v)) return [];
+    return v.filter((x): x is string => typeof x === "string" && x.trim().length > 0).map((s) => s.trim());
+  } catch {
+    return [];
+  }
+}
+
+/** 히어로 배경 URL 목록 (순서 유지). 다중 미설정 시 기존 단일 hero_image_url만 사용 */
+export async function getHeroImageSlides(): Promise<string[]> {
+  if (!supabase) return [];
+  const multiRaw = await getSiteSetting(HERO_IMAGE_URLS_KEY);
+  const fromMulti = parseHeroUrlsJson(multiRaw);
+  if (fromMulti.length > 0) return fromMulti;
+  const single = (await getSiteSetting(HERO_IMAGE_URL_LEGACY_KEY)).trim();
+  return single ? [single] : [];
+}
+
+export async function setHeroImageSlides(urls: string[]): Promise<void> {
+  assertSupabaseConfigured();
+  const cleaned = urls.map((u) => u.trim()).filter(Boolean);
+  await setSiteSetting(HERO_IMAGE_URLS_KEY, JSON.stringify(cleaned));
+  await setSiteSetting(HERO_IMAGE_URL_LEGACY_KEY, cleaned[0] ?? "");
+}
 
 export async function getSiteSetting(key: string): Promise<string> {
   if (!supabase) return "";

@@ -14,7 +14,9 @@ import {
   Paintbrush,
   Grid3x3,
   Info,
+  Table2,
 } from "lucide-react";
+import { EstimatePriceTableModal } from "../components/EstimatePriceTableModal";
 import { createLead } from "../../lib/api";
 import { PORTFOLIO_INDUSTRY_OPTIONS } from "../../lib/portfolioIndustries";
 import {
@@ -46,6 +48,7 @@ export function EstimatePage() {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<EstimateFormState>(() => defaultEstimateFormState());
   const [showContactModal, setShowContactModal] = useState(false);
+  const [showPriceTableModal, setShowPriceTableModal] = useState(false);
   const [contactData, setContactData] = useState<ContactData>({
     name: "",
     phone: "",
@@ -119,6 +122,14 @@ export function EstimatePage() {
                 실제 금액은 현장 조건·브랜드·폐기물량 등에 따라 달라질 수 있습니다.
               </span>
             </p>
+            <button
+              type="button"
+              onClick={() => setShowPriceTableModal(true)}
+              className="mt-8 inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 border-gray-900 bg-white text-gray-900 text-sm font-semibold hover:bg-gray-900 hover:text-white transition-colors shadow-sm"
+            >
+              <Table2 className="w-4 h-4" aria-hidden />
+              단가표 보기
+            </button>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -467,6 +478,8 @@ export function EstimatePage() {
           </div>
         </div>
       </div>
+
+      <EstimatePriceTableModal open={showPriceTableModal} onClose={() => setShowPriceTableModal(false)} />
 
       {showContactModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-6">

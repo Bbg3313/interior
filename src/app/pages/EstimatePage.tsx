@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router";
 import {
   Check,
   ArrowRight,
@@ -45,6 +46,7 @@ interface ContactData {
 const STEPS = 3;
 
 export function EstimatePage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<EstimateFormState>(() => defaultEstimateFormState());
   const [showContactModal, setShowContactModal] = useState(false);
@@ -60,13 +62,21 @@ export function EstimatePage() {
   const { min, max, lines } = useMemo(() => computeEstimateRange(form), [form]);
   const perPyeongTotal = totalPerPyeongFromLines(lines);
 
+  useEffect(() => {
+    if (searchParams.get("prices") !== "1") return;
+    setShowPriceTableModal(true);
+    const next = new URLSearchParams(searchParams);
+    next.delete("prices");
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
+
   const handleSubmitQuote = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!contactData.name || !contactData.phone || !contactData.email) {
       alert("이름, 연락처, 이메일은 필수 입력 항목입니다.");
       return;
     }
-    if (!form.industry) return;
+    if (!form.industry || !form.areaConfirmed) return;
 
     setSubmitting(true);
     try {
@@ -125,40 +135,50 @@ export function EstimatePage() {
             <button
               type="button"
               onClick={() => setShowPriceTableModal(true)}
-              className="mt-8 inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 border-gray-900 bg-white text-gray-900 text-sm font-semibold hover:bg-gray-900 hover:text-white transition-colors shadow-sm"
+              className="mt-8 inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-gradient-to-r from-yellow-400 to-amber-400 text-black text-sm font-semibold shadow-lg shadow-yellow-400/25 hover:from-yellow-500 hover:to-amber-500 transition-all"
             >
-              <Table2 className="w-4 h-4" aria-hidden />
-              단가표 보기
+              <Table2 className="w-4 h-4 shrink-0" aria-hidden />
+              기준 공종 단가표 보기
             </button>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
               <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 md:p-10">
-                <div className="flex items-center gap-2 mb-8">
-                  {Array.from({ length: STEPS }, (_, i) => (
-                    <React.Fragment key={i}>
-                      <button
-                        type="button"
-                        onClick={() => setStep(i + 1)}
-                        className={`w-9 h-9 rounded-full text-sm font-semibold transition-colors ${
-                          step === i + 1
-                            ? "bg-black text-white"
-                            : step > i + 1
-                              ? "bg-gray-200 text-gray-800"
-                              : "bg-gray-100 text-gray-400"
-                        }`}
-                      >
-                        {i + 1}
-                      </button>
-                      {i < STEPS - 1 && <div className="flex-1 h-0.5 bg-gray-100 max-w-12" />}
-                    </React.Fragment>
-                  ))}
-                  <span className="text-sm text-gray-500 ml-2">
-                    {step === 1 && "업종"}
-                    {step === 2 && "면적"}
-                    {step === 3 && "공종 구성"}
-                  </span>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6 mb-8 pb-6 border-b border-gray-100">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {Array.from({ length: STEPS }, (_, i) => (
+                      <React.Fragment key={i}>
+                        <button
+                          type="button"
+                          onClick={() => setStep(i + 1)}
+                          className={`w-9 h-9 rounded-full text-sm font-semibold transition-colors ${
+                            step === i + 1
+                              ? "bg-black text-white"
+                              : step > i + 1
+                                ? "bg-gray-200 text-gray-800"
+                                : "bg-gray-100 text-gray-400"
+                          }`}
+                        >
+                          {i + 1}
+                        </button>
+                        {i < STEPS - 1 && <div className="flex-1 h-0.5 bg-gray-100 max-w-12 min-w-[1rem]" />}
+                      </React.Fragment>
+                    ))}
+                    <span className="text-sm text-gray-500 ml-1 w-full sm:w-auto mt-1 sm:mt-0">
+                      {step === 1 && "업종"}
+                      {step === 2 && "면적"}
+                      {step === 3 && "공종 구성"}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowPriceTableModal(true)}
+                    className="inline-flex items-center justify-center gap-2 w-full sm:w-auto shrink-0 px-5 py-3 rounded-full border-2 border-yellow-500/80 bg-yellow-50 text-yellow-950 text-sm font-semibold hover:bg-yellow-100 transition-colors"
+                  >
+                    <Table2 className="w-4 h-4 shrink-0" aria-hidden />
+                    공종 단가표
+                  </button>
                 </div>
 
                 {step === 1 && (
@@ -167,7 +187,9 @@ export function EstimatePage() {
                     <p className="text-gray-600 mb-8">포트폴리오·현장 유형과 동일한 분류입니다.</p>
                     <select
                       value={form.industry}
-                      onChange={(e) => setForm({ ...form, industry: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, industry: e.target.value, areaConfirmed: false })
+                      }
                       className="w-full px-6 py-5 text-lg border-2 border-gray-200 rounded-2xl focus:border-black focus:outline-none transition-all bg-white hover:border-gray-300"
                     >
                       <option value="">업종을 선택하세요</option>
@@ -224,7 +246,10 @@ export function EstimatePage() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => setStep(3)}
+                        onClick={() => {
+                          setForm((f) => ({ ...f, areaConfirmed: true }));
+                          setStep(3);
+                        }}
                         className="flex items-center gap-2 px-8 py-4 bg-black text-white rounded-full hover:bg-gray-900 transition-all shadow-lg"
                       >
                         다음 <ArrowRight className="w-5 h-5" />
@@ -413,10 +438,19 @@ export function EstimatePage() {
             {/* 요약 패널 */}
             <div className="lg:col-span-1">
               <div className="bg-white border-2 border-gray-200 rounded-3xl shadow-lg p-6 md:p-8 lg:sticky lg:top-[120px]">
-                <div className="flex items-center gap-2 mb-6">
+                <div className="flex items-center gap-2 mb-4">
                   <Sparkles className="w-5 h-5 text-yellow-600" />
                   <h3 className="text-lg font-semibold">견적 요약</h3>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowPriceTableModal(true)}
+                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl border-2 border-gray-900 bg-white text-gray-900 text-sm font-semibold hover:bg-gray-900 hover:text-white transition-colors mb-6"
+                >
+                  <Table2 className="w-4 h-4 shrink-0" aria-hidden />
+                  기준 단가표 보기
+                </button>
 
                 <div className="space-y-4 mb-6 text-sm border-b border-gray-100 pb-6">
                   <div>
@@ -425,7 +459,9 @@ export function EstimatePage() {
                   </div>
                   <div>
                     <div className="text-gray-500">면적</div>
-                    <div className="font-medium">{form.area}평</div>
+                    <div className="font-medium">
+                      {form.areaConfirmed ? `${form.area}평` : "2단계에서 선택"}
+                    </div>
                   </div>
                   <div>
                     <div className="text-gray-500 mb-2">선택 공종 (평당 합산)</div>
@@ -450,20 +486,24 @@ export function EstimatePage() {
 
                 <div className="pt-2">
                   <div className="text-sm text-gray-600 mb-2">예상 범위 (참고)</div>
-                  {form.industry ? (
+                  {!form.industry ? (
+                    <div className="text-2xl text-gray-300 mb-6">업종을 선택하세요</div>
+                  ) : !form.areaConfirmed ? (
+                    <div className="text-base text-gray-500 mb-6 leading-relaxed">
+                      시공 면적(평)을 2단계에서 선택하면 예상 범위가 표시됩니다.
+                    </div>
+                  ) : (
                     <>
                       <div className="text-3xl md:text-4xl font-light bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent tabular-nums">
                         {min.toLocaleString()}만원
                       </div>
                       <div className="text-gray-600 mb-6">~ {max.toLocaleString()}만원</div>
                     </>
-                  ) : (
-                    <div className="text-2xl text-gray-300 mb-6">업종을 선택하세요</div>
                   )}
 
                   <button
                     type="button"
-                    disabled={!form.industry}
+                    disabled={!form.industry || !form.areaConfirmed}
                     onClick={() => setShowContactModal(true)}
                     className="w-full py-4 bg-gradient-to-r from-yellow-400 to-amber-400 hover:from-yellow-500 hover:to-amber-500 text-black rounded-full transition-all font-semibold disabled:from-gray-200 disabled:to-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed shadow-lg"
                   >

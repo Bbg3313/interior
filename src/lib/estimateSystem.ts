@@ -63,6 +63,8 @@ export type WallpaperId = (typeof ESTIMATE_WALLPAPER_OPTIONS)[number]["id"];
 
 export interface EstimateFormState {
   industry: string;
+  /** Step 2: user confirms area (Next) before showing total range in UI. */
+  areaConfirmed: boolean;
   area: number;
   includeDemolition: boolean;
   flooringId: FlooringId;
@@ -74,6 +76,7 @@ export interface EstimateFormState {
 
 export const defaultEstimateFormState = (): EstimateFormState => ({
   industry: "",
+  areaConfirmed: false,
   area: 30,
   includeDemolition: true,
   flooringId: "none",

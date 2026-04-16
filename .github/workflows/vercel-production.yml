@@ -1,5 +1,5 @@
 # Secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID
-# Prebuilt: pnpm install → vercel build → upload .vercel/output (Vercel KB pattern)
+# Remote build on Vercel (vercel.json: installCommand / buildCommand with pnpm)
 name: Vercel Production
 on:
   push:
@@ -20,32 +20,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: pnpm
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Write .vercel/project.json
-        run: |
-          mkdir -p .vercel
-          node -e "require('fs').writeFileSync('.vercel/project.json', JSON.stringify({projectId:process.env.VERCEL_PROJECT_ID, orgId:process.env.VERCEL_ORG_ID, projectName:'interior-main'}));"
-
-      - name: Vercel build
-        run: npx vercel@latest build --prod --yes --token=$VERCEL_TOKEN
-
-      - name: Deploy prebuilt to production
-        uses: amondnet/vercel-action@v42.2.0
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          prebuilt: true
-          target: production
-          github-comment: false
+      - name: Deploy to Vercel (production)
+        run: npx vercel@latest deploy --prod --yes --token=$VERCEL_TOKEN

@@ -104,8 +104,8 @@ export function LandingPage() {
 
   return (
     <div className="bg-white">
-      {/* Hero: 이미지 전환만 (문구·어두운 오버레이 없음) */}
-      <section className="relative min-h-[min(70vh,820px)] w-full overflow-hidden bg-gray-100">
+      {/* Hero: 이미지 전환만 (문구·어두운 오버레이 없음). 높이는 뷰포트 기준으로 확실히 보이게 */}
+      <section className="relative min-h-screen w-full overflow-hidden bg-neutral-100">
         <div className="absolute inset-0" aria-hidden>
           {heroSlides.map((url, i) => (
             <div

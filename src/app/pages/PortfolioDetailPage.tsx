@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useParams } from "react-router";
-import { MapPin, Ruler, DollarSign, Tag, ArrowLeft, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, Ruler, Banknote, Tag, ArrowLeft, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { getPortfolio } from "../../lib/api";
+import { formatPortfolioBudgetDisplay } from "../../lib/formatPortfolioBudget";
 
 export function PortfolioDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -156,11 +157,13 @@ export function PortfolioDetailPage() {
 
               <div className="flex items-start gap-4 p-5 bg-gray-50 rounded-2xl sm:col-span-2">
                 <div className="w-12 h-12 rounded-xl bg-white border border-gray-200 flex items-center justify-center shrink-0">
-                  <DollarSign className="w-6 h-6 text-gray-700" />
+                  <Banknote className="w-6 h-6 text-gray-700" aria-hidden />
                 </div>
                 <div>
                   <div className="text-sm text-gray-500 mb-1">총 시공비</div>
-                  <div className="text-2xl font-semibold text-black">{portfolio.budget}</div>
+                  <div className="text-2xl font-semibold text-black tabular-nums">
+                    {formatPortfolioBudgetDisplay(portfolio.budget)}
+                  </div>
                 </div>
               </div>
 

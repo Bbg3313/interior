@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import { MapPin } from "lucide-react";
 import type { Portfolio } from "../../types";
+import { formatPortfolioBudgetDisplay } from "../../lib/formatPortfolioBudget";
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1676716244847-3fae1a2afb5b?w=1080";
 
@@ -23,7 +24,7 @@ export function mapPortfolioToCardProject(p: Portfolio): PortfolioCardProject {
     name: p.name,
     location: p.location,
     area: p.area,
-    budget: p.budget,
+    budget: formatPortfolioBudgetDisplay(p.budget),
     industry: p.industry,
     style: p.style,
     duration: p.duration,

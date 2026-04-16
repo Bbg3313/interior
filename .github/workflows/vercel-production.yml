@@ -1,6 +1,4 @@
-# Deploy production on push to main (works even if Vercel Git "Connect" is incomplete).
-# Repo secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID
-# Uses remote build on Vercel (no vercel pull).
+# Deploy production on push to main. Secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID
 name: Vercel Production
 on:
   push:
@@ -8,27 +6,19 @@ on:
       - main
   workflow_dispatch: {}
 
-env:
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+permissions:
+  contents: read
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Deploy to Vercel
-        run: npx vercel@latest deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
+      # CLI reads VERCEL_TOKEN from env; org/project from VERCEL_ORG_ID / VERCEL_PROJECT_ID
+      - name: Deploy to Vercel (remote build)
+        run: npx vercel@latest deploy --prod --yes

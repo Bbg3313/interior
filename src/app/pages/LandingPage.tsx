@@ -104,8 +104,8 @@ export function LandingPage() {
 
   return (
     <div className="bg-white">
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-900">
+      {/* Hero: 이미지 전환만 (문구·어두운 오버레이 없음) */}
+      <section className="relative min-h-[min(70vh,820px)] w-full overflow-hidden bg-gray-100">
         <div className="absolute inset-0" aria-hidden>
           {heroSlides.map((url, i) => (
             <div
@@ -113,56 +113,11 @@ export function LandingPage() {
               className="absolute inset-0 bg-cover bg-center transition-opacity duration-[1400ms] ease-in-out"
               style={{
                 backgroundImage: `url('${escapeBgUrl(url)}')`,
-                opacity: i === heroActiveIndex ? 0.4 : 0,
+                opacity: i === heroActiveIndex ? 1 : 0,
                 zIndex: i === heroActiveIndex ? 1 : 0,
               }}
             />
           ))}
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40 z-[2]" />
-        
-        <div className="relative z-10 text-center px-6 max-w-6xl mx-auto py-32">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 mb-8">
-            <Sparkles className="w-4 h-4 text-yellow-400" />
-            <span className="text-sm text-white/90">500+ 프로젝트 완료</span>
-          </div>
-          
-          <h1 className="text-6xl md:text-8xl lg:text-9xl text-white mb-8 tracking-tight leading-none">
-            Premium<br />
-            <span className="bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 bg-clip-text text-transparent">
-              Interior Solutions
-            </span>
-          </h1>
-          
-          <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed">
-            1분 만에 투명한 견적을 받아보세요<br />
-            당신의 비즈니스를 위한<br />
-            프리미엄 공간 디자인
-          </p>
-          
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link 
-              to="/estimate"
-              className="group relative inline-flex items-center gap-3 bg-gradient-to-r from-yellow-400 to-amber-400 hover:from-yellow-500 hover:to-amber-500 text-black px-10 py-5 rounded-full transition-all text-lg font-semibold shadow-2xl shadow-yellow-400/25 hover:shadow-yellow-400/40 hover:scale-105"
-            >
-              무료 견적 시작하기
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-            
-            <Link 
-              to="/portfolio"
-              className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white px-10 py-5 rounded-full transition-all text-lg font-medium border border-white/20 hover:border-white/40"
-            >
-              포트폴리오 보기
-            </Link>
-          </div>
-        </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce">
-          <div className="w-6 h-10 border-2 border-white/30 rounded-full flex items-start justify-center p-2">
-            <div className="w-1 h-2 bg-white/60 rounded-full" />
-          </div>
         </div>
       </section>
 

@@ -13,4 +13,6 @@ dist/
 .DS_Store
 *.log
 
-.vercel
+# Vercel: keep linked project id in repo for CI; ignore the rest
+.vercel/*
+!.vercel/project.json

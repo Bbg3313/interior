@@ -38,7 +38,7 @@ jobs:
           node -e "require('fs').writeFileSync('.vercel/project.json', JSON.stringify({projectId:process.env.VERCEL_PROJECT_ID, orgId:process.env.VERCEL_ORG_ID, projectName:'interior-main'}));"
 
       - name: Vercel build
-        run: npx vercel@latest build --prod --token=$VERCEL_TOKEN
+        run: npx vercel@latest build --prod --yes --token=$VERCEL_TOKEN
 
       - name: Deploy prebuilt to production
         uses: amondnet/vercel-action@v42.2.0

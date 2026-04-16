@@ -19,6 +19,8 @@ export function LandingPage() {
   const [reviews, setReviews] = useState<Review[]>(defaultReviews);
   const [heroSlides, setHeroSlides] = useState<string[]>([defaultHeroUrl]);
   const [heroActiveIndex, setHeroActiveIndex] = useState(0);
+  /** 수동으로 슬라이드를 바꾸면 자동 재생 타이머를 다시 맞추기 위한 키 */
+  const [heroAutoplayKey, setHeroAutoplayKey] = useState(0);
   const [loading, setLoading] = useState(true);
   const [pageSize, setPageSize] = useState(1);
   const [carouselStart, setCarouselStart] = useState(0);
@@ -98,7 +100,21 @@ export function LandingPage() {
       setHeroActiveIndex((i) => (i + 1) % heroSlides.length);
     }, 8000);
     return () => window.clearInterval(t);
-  }, [heroSlides.length]);
+  }, [heroSlides.length, heroAutoplayKey]);
+
+  const goHero = (dir: -1 | 1) => {
+    if (heroSlides.length <= 1) return;
+    setHeroActiveIndex((i) =>
+      dir < 0 ? (i - 1 + heroSlides.length) % heroSlides.length : (i + 1) % heroSlides.length
+    );
+    setHeroAutoplayKey((k) => k + 1);
+  };
+
+  const goHeroTo = (index: number) => {
+    if (heroSlides.length <= 1 || index === heroActiveIndex) return;
+    setHeroActiveIndex(index);
+    setHeroAutoplayKey((k) => k + 1);
+  };
 
   const escapeBgUrl = (url: string) => url.replace(/'/g, "%27");
 
@@ -119,6 +135,54 @@ export function LandingPage() {
             />
           ))}
         </div>
+
+        {heroSlides.length > 1 && (
+          <>
+            <div
+              className="absolute inset-0 z-[2] flex items-center justify-between px-3 sm:px-6 md:px-10 pointer-events-none"
+              aria-label="히어로 이미지 슬라이드"
+            >
+              <button
+                type="button"
+                onClick={() => goHero(-1)}
+                aria-label="이전 히어로 이미지"
+                className="pointer-events-auto flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-full border border-white/40 bg-black/25 text-white shadow-lg backdrop-blur-md transition hover:bg-black/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
+                <ChevronLeft className="h-6 w-6 sm:h-7 sm:w-7" aria-hidden />
+              </button>
+              <button
+                type="button"
+                onClick={() => goHero(1)}
+                aria-label="다음 히어로 이미지"
+                className="pointer-events-auto flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-full border border-white/40 bg-black/25 text-white shadow-lg backdrop-blur-md transition hover:bg-black/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
+                <ChevronRight className="h-6 w-6 sm:h-7 sm:w-7" aria-hidden />
+              </button>
+            </div>
+
+            <div
+              className="absolute bottom-8 left-1/2 z-[2] flex -translate-x-1/2 flex-wrap items-center justify-center gap-2 sm:bottom-10"
+              role="tablist"
+              aria-label="히어로 슬라이드 위치"
+            >
+              {heroSlides.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  role="tab"
+                  aria-selected={i === heroActiveIndex}
+                  aria-label={`${i + 1}번째 이미지로 이동`}
+                  onClick={() => goHeroTo(i)}
+                  className={
+                    i === heroActiveIndex
+                      ? "h-2 w-8 rounded-full bg-white shadow transition"
+                      : "h-2 w-2 rounded-full bg-white/45 shadow transition hover:bg-white/75"
+                  }
+                />
+              ))}
+            </div>
+          </>
+        )}
       </section>
 
       {/* Best Portfolios */}

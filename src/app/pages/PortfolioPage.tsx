@@ -37,33 +37,52 @@ export function PortfolioPage() {
   const hasMore = visibleCount < filteredProjects.length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Header */}
-      <div className="bg-gradient-to-br from-black via-gray-900 to-black text-white">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-24">
+    <div className="min-h-screen bg-gradient-to-b from-stone-50/80 to-white">
+      {/* Header — architectural studio tone (warm stone, subtle plan grid) */}
+      <div className="relative overflow-hidden border-b border-stone-200/90 bg-gradient-to-br from-[#faf8f4] via-[#f0ebe3] to-[#e5ddd3]">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.45]"
+          aria-hidden
+          style={{
+            backgroundImage: `linear-gradient(to right, rgb(120 113 108 / 0.07) 1px, transparent 1px),
+              linear-gradient(to bottom, rgb(120 113 108 / 0.07) 1px, transparent 1px)`,
+            backgroundSize: "28px 28px",
+          }}
+        />
+        <div
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_-15%,rgba(146,64,14,0.09),transparent_55%)]"
+          aria-hidden
+        />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-900/25 to-transparent" aria-hidden />
+
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-20 md:py-24">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 mb-6">
-              <Tag className="w-4 h-4 text-yellow-400" />
-              <span className="text-sm">500+ 완료 프로젝트</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-stone-300/70 bg-white/55 backdrop-blur-sm text-stone-700 shadow-sm mb-6">
+              <Tag className="w-4 h-4 text-amber-800/90 shrink-0" aria-hidden />
+              <span className="text-sm font-medium tracking-wide">500+ 완료 프로젝트</span>
             </div>
-            <h1 className="text-6xl md:text-7xl mb-6 tracking-tight">포트폴리오</h1>
-            <p className="text-xl text-gray-400">성공적인 프로젝트를 확인하고 영감을 얻으세요</p>
+            <h1 className="text-5xl md:text-6xl lg:text-7xl mb-5 tracking-tight text-stone-900 font-semibold">
+              포트폴리오
+            </h1>
+            <p className="text-lg md:text-xl text-stone-600 leading-relaxed max-w-xl">
+              성공적인 프로젝트를 확인하고 영감을 얻으세요
+            </p>
           </div>
         </div>
       </div>
 
       {/* 업종 카테고리 */}
-      <div className="bg-white/80 backdrop-blur-xl border-b border-gray-200">
+      <div className="bg-[#fafaf8]/95 backdrop-blur-xl border-b border-stone-200/80">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-6">
-          <p className="text-sm font-medium text-gray-700 mb-3">업종</p>
+          <p className="text-sm font-medium text-stone-600 mb-3 tracking-wide">업종</p>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => setSelectedIndustry("전체")}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+              className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
                 selectedIndustry === "전체"
-                  ? "bg-black text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  ? "bg-stone-800 text-white shadow-sm ring-1 ring-stone-700/30"
+                  : "bg-stone-100/90 text-stone-700 hover:bg-stone-200/90 border border-stone-200/80"
               }`}
             >
               전체
@@ -73,10 +92,10 @@ export function PortfolioPage() {
                 key={label}
                 type="button"
                 onClick={() => setSelectedIndustry(label)}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
                   selectedIndustry === label
-                    ? "bg-black text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    ? "bg-stone-800 text-white shadow-sm ring-1 ring-stone-700/30"
+                    : "bg-stone-100/90 text-stone-700 hover:bg-stone-200/90 border border-stone-200/80"
                 }`}
               >
                 {label}
@@ -88,7 +107,7 @@ export function PortfolioPage() {
 
       {/* Portfolio Grid */}
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
-        <div className="mb-8 text-gray-600">
+        <div className="mb-8 text-stone-600">
           {loading ? "로딩 중..." : `총 ${filteredProjects.length}개의 프로젝트`}
         </div>
 
@@ -104,7 +123,11 @@ export function PortfolioPage() {
         {/* Load More Button */}
         {hasMore && (
           <div className="text-center mt-16">
-            <button className="px-8 py-4 bg-black text-white rounded-full hover:bg-gray-900 transition-all shadow-lg hover:shadow-xl hover:scale-105" onClick={loadMore}>
+            <button
+              type="button"
+              className="px-8 py-4 rounded-full bg-stone-800 text-white hover:bg-stone-900 transition-all shadow-md shadow-stone-900/10 hover:shadow-lg hover:scale-[1.02] ring-1 ring-stone-700/20"
+              onClick={loadMore}
+            >
               더 많은 프로젝트 보기
             </button>
           </div>

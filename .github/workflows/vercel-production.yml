@@ -39,4 +39,4 @@ jobs:
           node -e "require('fs').writeFileSync('.vercel/project.json', JSON.stringify({projectId:process.env.VERCEL_PROJECT_ID, orgId:process.env.VERCEL_ORG_ID, projectName:'interior-main'}));"
 
       - name: Deploy to Vercel (production)
-        run: npx vercel@latest deploy --prod --yes --token=$VERCEL_TOKEN
+        run: npx vercel@latest deploy --prod --yes --logs --token=$VERCEL_TOKEN

@@ -24,5 +24,19 @@ jobs:
         with:
           node-version: 20
 
+      - name: Verify Vercel secrets are set
+        run: |
+          ok=1
+          if [ -z "$VERCEL_TOKEN" ]; then echo "::error::VERCEL_TOKEN secret is empty"; ok=0; fi
+          if [ -z "$VERCEL_ORG_ID" ]; then echo "::error::VERCEL_ORG_ID secret is empty"; ok=0; fi
+          if [ -z "$VERCEL_PROJECT_ID" ]; then echo "::error::VERCEL_PROJECT_ID secret is empty"; ok=0; fi
+          echo "VERCEL_TOKEN length: ${#VERCEL_TOKEN}"
+          [ "$ok" = 1 ] || exit 1
+
+      - name: Write .vercel/project.json
+        run: |
+          mkdir -p .vercel
+          node -e "require('fs').writeFileSync('.vercel/project.json', JSON.stringify({projectId:process.env.VERCEL_PROJECT_ID, orgId:process.env.VERCEL_ORG_ID, projectName:'interior-main'}));"
+
       - name: Deploy to Vercel (production)
         run: npx vercel@latest deploy --prod --yes --token=$VERCEL_TOKEN

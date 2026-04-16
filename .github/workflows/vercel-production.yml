@@ -1,15 +1,16 @@
-# Vercel Git 연동이 동작하지 않을 때: GitHub Secrets 설정 후 main 푸시로 프로덕션 배포
-# 필요한 시크릿: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID
-# https://vercel.com/guides/how-can-i-use-github-actions-with-vercel
+# Deploy production on push to main (works even if Vercel Git "Connect" is incomplete).
+# Repo secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID
+# Uses remote build on Vercel (no vercel pull).
 name: Vercel Production
-env:
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 on:
   push:
     branches:
       - main
   workflow_dispatch: {}
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
 jobs:
   deploy:
@@ -17,14 +18,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
 
-      - name: Pull Vercel env
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
 
-      - name: Build
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      - name: Deploy
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy to Vercel
+        run: npx vercel@latest deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}

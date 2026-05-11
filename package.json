@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "dev": "vite"
+    "dev": "vite",
+    "migrate:storage": "node scripts/migrate-supabase-storage.mjs",
+    "migrate:db": "node scripts/migrate-supabase-database.mjs"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",

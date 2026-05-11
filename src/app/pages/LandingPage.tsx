@@ -42,16 +42,34 @@ export function LandingPage() {
     let cancelled = false;
     (async () => {
       try {
-        const [portfolios, reviewsData, heroUrls] = await Promise.all([
+        // Promise.all 이면 reviews/hero 중 하나만 실패해도 포트폴리오까지 안 나옴 → allSettled 로 분리
+        const [pRes, rRes, hRes] = await Promise.allSettled([
           getPortfolios(),
           getReviews(),
           getHeroImageSlides(),
         ]);
         if (cancelled) return;
-        if (heroUrls.length > 0) setHeroSlides(heroUrls);
-        setPortfolioProjects(portfolios.map(mapPortfolioToCardProject));
-        if (reviewsData.length > 0) setReviews(reviewsData);
-      } catch {
+
+        if (pRes.status === "fulfilled") {
+          setPortfolioProjects(pRes.value.map(mapPortfolioToCardProject));
+        } else {
+          console.error("[LandingPage] portfolios:", pRes.reason);
+          setPortfolioProjects([]);
+        }
+
+        if (rRes.status === "fulfilled") {
+          if (rRes.value.length > 0) setReviews(rRes.value);
+        } else {
+          console.error("[LandingPage] reviews:", rRes.reason);
+        }
+
+        if (hRes.status === "fulfilled") {
+          if (hRes.value.length > 0) setHeroSlides(hRes.value);
+        } else {
+          console.error("[LandingPage] hero slides:", hRes.reason);
+        }
+      } catch (e) {
+        console.error("[LandingPage]", e);
         if (!cancelled) setPortfolioProjects([]);
       } finally {
         if (!cancelled) setLoading(false);

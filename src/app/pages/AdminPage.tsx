@@ -583,7 +583,7 @@ export function AdminPage() {
                   </div>
                   <div>
                     <div className="text-gray-500 mb-1">주소</div>
-                    <div className="text-gray-900">서울시 강남구 테헤란로 123</div>
+                    <div className="text-gray-900">경기도 김포시 월하로 710-17 가동</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -592,7 +592,11 @@ export function AdminPage() {
                   </div>
                   <div>
                     <div className="text-gray-500 mb-1">대표 전화</div>
-                    <div className="text-gray-900">1588-0000</div>
+                    <div className="text-gray-900 tabular-nums">
+                      031-989-2541
+                      <span className="text-gray-500"> · </span>
+                      010-4524-2541
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -601,7 +605,7 @@ export function AdminPage() {
                   </div>
                   <div>
                     <div className="text-gray-500 mb-1">이메일</div>
-                    <div className="text-gray-900">contact@interiorpro.com</div>
+                    <div className="text-gray-900 break-all">21_may@naver.com</div>
                   </div>
                 </div>
               </div>

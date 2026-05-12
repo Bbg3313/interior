@@ -41,7 +41,7 @@ export function MainLayout() {
         )}
 
         <nav className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
-          <div className="flex h-[4.25rem] sm:h-[4.5rem] items-center justify-between gap-6">
+          <div className="flex h-[5rem] sm:h-[5.5rem] items-center justify-between gap-6">
             <Link
               to="/"
               className={`group flex min-w-0 shrink-0 items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded-sm ${
@@ -54,7 +54,7 @@ export function MainLayout() {
                 width={292}
                 height={123}
                 decoding="async"
-                className={`h-9 sm:h-10 w-auto max-w-[min(260px,62vw)] object-contain object-left transition-opacity duration-200 ${
+                className={`h-11 sm:h-12 w-auto max-w-[min(300px,72vw)] object-contain object-left transition-opacity duration-200 ${
                   isAdmin ? "opacity-95 brightness-110 contrast-[1.03]" : "opacity-[0.98] group-hover:opacity-100"
                 }`}
               />
@@ -68,7 +68,7 @@ export function MainLayout() {
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`relative px-3 lg:px-4 py-2 text-[11px] lg:text-xs font-semibold uppercase tracking-[0.18em] transition-colors duration-200 after:pointer-events-none after:absolute after:left-3 after:right-3 lg:after:left-4 lg:after:right-4 after:bottom-0 after:h-px after:transition-all after:duration-300 ${
+                    className={`relative px-4 lg:px-5 py-2.5 text-xs sm:text-[13px] font-semibold uppercase tracking-[0.16em] sm:tracking-[0.18em] transition-colors duration-200 after:pointer-events-none after:absolute after:left-4 after:right-4 lg:after:left-5 lg:after:right-5 after:bottom-0.5 after:h-px after:transition-all after:duration-300 ${
                       active
                         ? isAdmin
                           ? "text-white after:opacity-100 after:bg-white/65"
@@ -86,14 +86,14 @@ export function MainLayout() {
 
             <button
               type="button"
-              className={`md:hidden rounded-sm p-2 transition-colors ${
+              className={`md:hidden rounded-sm p-2.5 transition-colors ${
                 isAdmin ? "text-zinc-300 hover:text-white" : "text-stone-700 hover:text-stone-950"
               }`}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-expanded={mobileMenuOpen}
               aria-label={mobileMenuOpen ? "메뉴 닫기" : "메뉴 열기"}
             >
-              {mobileMenuOpen ? <X className="w-6 h-6 stroke-[1.5]" /> : <Menu className="w-6 h-6 stroke-[1.5]" />}
+              {mobileMenuOpen ? <X className="w-7 h-7 stroke-[1.5]" /> : <Menu className="w-7 h-7 stroke-[1.5]" />}
             </button>
           </div>
 
@@ -112,7 +112,7 @@ export function MainLayout() {
                     <Link
                       key={item.path}
                       to={item.path}
-                      className={`px-1 py-3.5 text-xs font-semibold uppercase tracking-[0.2em] transition-colors ${
+                      className={`px-1 py-4 text-sm font-semibold uppercase tracking-[0.18em] transition-colors ${
                         active
                           ? isAdmin
                             ? "text-white bg-white/[0.04]"
@@ -133,7 +133,7 @@ export function MainLayout() {
         </nav>
       </header>
 
-      <main className={isAdmin ? "pt-[68px]" : "pt-[calc(2px+4.25rem)] sm:pt-[calc(2px+4.5rem)]"}>
+      <main className={isAdmin ? "pt-20 sm:pt-[5.5rem]" : "pt-[calc(2px+5rem)] sm:pt-[calc(2px+5.5rem)]"}>
         <Outlet />
       </main>
       {!isAdmin && <SiteFooter />}

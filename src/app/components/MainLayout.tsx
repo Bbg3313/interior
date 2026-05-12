@@ -3,6 +3,7 @@ import { Menu, X } from "lucide-react";
 import { useState, useLayoutEffect } from "react";
 import { SiteFooter } from "./SiteFooter";
 import { FloatingSocialLinks } from "./FloatingSocialLinks";
+import { SITE_BRANDING } from "../../lib/siteBranding";
 
 export function MainLayout() {
   const location = useLocation();
@@ -41,7 +42,8 @@ export function MainLayout() {
         )}
 
         <nav className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
-          <div className="flex h-[5rem] sm:h-[5.5rem] items-center justify-between gap-6">
+          <div className="flex h-[5rem] sm:h-[5.5rem] items-center justify-between gap-4 sm:gap-6">
+            <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-5 md:gap-6">
             <Link
               to="/"
               className={`group flex min-w-0 shrink-0 items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded-sm ${
@@ -60,6 +62,23 @@ export function MainLayout() {
               />
               <span className="sr-only">설린 우드팩토리 홈으로 이동</span>
             </Link>
+
+            {!isAdmin && (
+              <div
+                className="hidden min-w-0 md:flex md:flex-col md:justify-center md:border-l md:border-stone-200/80 md:pl-5 lg:pl-6"
+              >
+                <p className="text-[0.65rem] font-medium tracking-[0.14em] text-stone-400/95">
+                  설계부터 완공까지
+                </p>
+                <p className="mt-1 text-[11px] font-medium leading-snug tracking-[0.04em] text-stone-700 sm:text-xs">
+                  {SITE_BRANDING.headerPrimary}
+                </p>
+                <p className="mt-0.5 hidden max-w-[14rem] text-[10px] font-normal leading-relaxed tracking-wide text-stone-500/95 lg:block lg:max-w-[18rem]">
+                  {SITE_BRANDING.headerSecondary}
+                </p>
+              </div>
+            )}
+            </div>
 
             <div className="hidden md:flex items-center gap-1 lg:gap-2">
               {navItems.map((item) => {

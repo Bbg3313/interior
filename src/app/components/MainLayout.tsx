@@ -42,11 +42,11 @@ export function MainLayout() {
         )}
 
         <nav className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
-          <div className="flex h-[5rem] sm:h-[5.5rem] items-center justify-between gap-4 sm:gap-6">
-            <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-5 md:gap-6">
+          <div className="flex h-[4.75rem] sm:h-[5.25rem] items-center justify-between gap-3 sm:gap-5">
+            <div className="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-4">
             <Link
               to="/"
-              className={`group flex min-w-0 shrink-0 items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded-sm ${
+              className={`group flex shrink-0 items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded-sm ${
                 isAdmin ? "focus-visible:ring-white/30" : "focus-visible:ring-amber-900/25"
               }`}
             >
@@ -56,7 +56,7 @@ export function MainLayout() {
                 width={292}
                 height={123}
                 decoding="async"
-                className={`h-11 sm:h-12 w-auto max-w-[min(300px,72vw)] object-contain object-left transition-opacity duration-200 ${
+                className={`h-9 w-auto max-w-[min(200px,46vw)] object-contain object-left transition-opacity duration-200 sm:h-11 sm:max-w-[min(260px,58vw)] md:h-12 md:max-w-[min(300px,72vw)] ${
                   isAdmin ? "opacity-95 brightness-110 contrast-[1.03]" : "opacity-[0.98] group-hover:opacity-100"
                 }`}
               />
@@ -64,23 +64,19 @@ export function MainLayout() {
             </Link>
 
             {!isAdmin && (
-              <div
-                className="hidden min-w-0 md:flex md:flex-col md:justify-center md:border-l md:border-stone-200/80 md:pl-5 lg:pl-6"
-              >
-                <p className="text-[0.65rem] font-medium tracking-[0.14em] text-stone-400/95">
-                  설계부터 완공까지
+              <>
+                <span
+                  className="hidden h-7 w-px shrink-0 bg-gradient-to-b from-transparent via-stone-300/90 to-transparent sm:block"
+                  aria-hidden
+                />
+                <p className="min-w-0 flex-1 truncate text-[10px] font-medium tracking-[0.07em] text-stone-600 sm:text-[11px] md:text-xs md:tracking-[0.06em]">
+                  {SITE_BRANDING.headerTagline}
                 </p>
-                <p className="mt-1 text-[11px] font-medium leading-snug tracking-[0.04em] text-stone-700 sm:text-xs">
-                  {SITE_BRANDING.headerPrimary}
-                </p>
-                <p className="mt-0.5 hidden max-w-[14rem] text-[10px] font-normal leading-relaxed tracking-wide text-stone-500/95 lg:block lg:max-w-[18rem]">
-                  {SITE_BRANDING.headerSecondary}
-                </p>
-              </div>
+              </>
             )}
             </div>
 
-            <div className="hidden md:flex items-center gap-1 lg:gap-2">
+            <div className="hidden md:flex items-center gap-1 shrink-0 lg:gap-2">
               {navItems.map((item) => {
                 const active = location.pathname === item.path;
                 return (
@@ -122,6 +118,13 @@ export function MainLayout() {
                 isAdmin ? "border-white/[0.06] bg-zinc-950" : "border-stone-200/80 bg-[#fcfcfb]"
               }`}
             >
+              {!isAdmin && (
+                <div className="px-4 pt-3 pb-3.5 border-b border-stone-200/70 bg-stone-50/40">
+                  <p className="text-[11px] font-medium tracking-[0.07em] text-stone-600 leading-relaxed">
+                    {SITE_BRANDING.headerTagline}
+                  </p>
+                </div>
+              )}
               <div
                 className={`flex flex-col divide-y pb-3 ${isAdmin ? "divide-white/[0.08]" : "divide-stone-200/80"}`}
               >
@@ -152,7 +155,7 @@ export function MainLayout() {
         </nav>
       </header>
 
-      <main className={isAdmin ? "pt-20 sm:pt-[5.5rem]" : "pt-[calc(2px+5rem)] sm:pt-[calc(2px+5.5rem)]"}>
+      <main className={isAdmin ? "pt-[4.75rem] sm:pt-[5.25rem]" : "pt-[calc(2px+4.75rem)] sm:pt-[calc(2px+5.25rem)]"}>
         <Outlet />
       </main>
       {!isAdmin && <SiteFooter />}

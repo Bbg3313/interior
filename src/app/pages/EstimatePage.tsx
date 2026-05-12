@@ -148,8 +148,7 @@ export function EstimatePage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
               <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 md:p-10">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6 mb-8 pb-6 border-b border-gray-100">
-                  <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2 mb-8 pb-6 border-b border-gray-100">
                     {Array.from({ length: STEPS }, (_, i) => (
                       <React.Fragment key={i}>
                         <button
@@ -173,15 +172,6 @@ export function EstimatePage() {
                       {step === 2 && "면적"}
                       {step === 3 && "공종 구성"}
                     </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setShowPriceTableModal(true)}
-                    className="inline-flex items-center justify-center gap-2 w-full sm:w-auto shrink-0 px-5 py-3 rounded-full border-2 border-yellow-500/80 bg-yellow-50 text-yellow-950 text-sm font-semibold hover:bg-yellow-100 transition-colors"
-                  >
-                    <Table2 className="w-4 h-4 shrink-0" aria-hidden />
-                    공종 단가표
-                  </button>
                 </div>
 
                 {step === 1 && (
@@ -492,15 +482,6 @@ export function EstimatePage() {
                   <Sparkles className="w-5 h-5 text-yellow-600" />
                   <h3 className="text-lg font-semibold">견적 요약</h3>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => setShowPriceTableModal(true)}
-                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl border-2 border-gray-900 bg-white text-gray-900 text-sm font-semibold hover:bg-gray-900 hover:text-white transition-colors mb-6"
-                >
-                  <Table2 className="w-4 h-4 shrink-0" aria-hidden />
-                  기준 단가표 보기
-                </button>
 
                 <div className="space-y-4 mb-6 text-sm border-b border-gray-100 pb-6">
                   <div>

@@ -43,27 +43,23 @@ export function MainLayout() {
         )}
         <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-3 group">
-              {!isAdmin && (
-                <span
-                  className="hidden sm:block h-8 w-px shrink-0 bg-gradient-to-b from-transparent via-stone-400/50 to-transparent"
-                  aria-hidden
-                />
-              )}
-              <span
-                className={`text-xl sm:text-2xl tracking-tight font-semibold ${isAdmin ? "text-white" : "text-stone-800"}`}
-              >
-                Interior
-                <span
-                  className={`ml-2 sm:ml-2.5 inline-block align-middle text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.22em] px-2 py-1 border transition-colors ${
-                    isAdmin
-                      ? "border-white/25 text-stone-300 bg-white/5"
-                      : "border-stone-400/50 text-stone-600 bg-white/70 group-hover:border-stone-500/60"
-                  }`}
-                >
-                  Pro
-                </span>
-              </span>
+            <Link
+              to="/"
+              className={`flex items-center gap-2 shrink-0 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+                isAdmin ? "focus-visible:ring-white/40" : "focus-visible:ring-amber-800/40"
+              }`}
+            >
+              <img
+                src="/soulin-nav-logo.png"
+                alt="Soulin woodwork — 설린 우드팩토리"
+                width={200}
+                height={48}
+                decoding="async"
+                className={`h-9 sm:h-10 w-auto max-w-[min(200px,52vw)] object-contain object-left ${
+                  isAdmin ? "rounded-md ring-1 ring-white/10" : ""
+                }`}
+              />
+              <span className="sr-only">설린 우드팩토리 홈으로 이동</span>
             </Link>
 
             {/* Desktop Menu */}

@@ -1,9 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="망치">
-  <rect width="32" height="32" rx="7" fill="#fff7ed" stroke="#e7e5e4" stroke-width="1"/>
-  <!-- Striking head: wide bar, high contrast -->
+  <!-- 투명 배경: 망치 실루엣만 -->
   <rect x="0.5" y="5" width="31" height="13" rx="4" fill="#1c1917"/>
   <rect x="19" y="6.5" width="10" height="10" rx="2.5" fill="#57534e"/>
-  <!-- Handle: thick wood tone -->
   <rect x="10" y="17" width="12" height="14.5" rx="3.5" fill="#c2410c"/>
   <rect x="12" y="19.5" width="8" height="10" rx="2" fill="#9a3412"/>
 </svg>

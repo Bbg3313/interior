@@ -8,87 +8,82 @@ export function MainLayout() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  /** 라우트 이동마다 항상 페이지 최상단으로 (스크롤 복원 이슈 방지) */
   useLayoutEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
   }, [location.pathname, location.search]);
 
-  const isAdmin = location.pathname === '/admin';
+  const isAdmin = location.pathname === "/admin";
 
   const navItems = [
-    { path: '/', label: '홈' },
-    { path: '/portfolio', label: '포트폴리오' },
-    { path: '/estimate', label: '견적 요청' },
-    { path: '/admin', label: '관리자' },
+    { path: "/", label: "홈" },
+    { path: "/portfolio", label: "포트폴리오" },
+    { path: "/estimate", label: "견적 요청" },
+    { path: "/admin", label: "관리자" },
   ];
-
-  const publicNav =
-    "border-b border-stone-200/70 bg-gradient-to-b from-[#fdfcfa] via-[#faf8f4]/98 to-[#f5f0e8]/95 shadow-[0_12px_40px_-16px_rgba(28,25,23,0.12),inset_0_1px_0_0_rgba(255,255,255,0.85)] backdrop-blur-2xl";
-
-  const adminNav =
-    "border-b border-white/[0.08] bg-gradient-to-b from-[#121212]/98 via-[#0c0c0c]/98 to-[#080808]/95 shadow-[0_16px_48px_-20px_rgba(0,0,0,0.65)] backdrop-blur-2xl";
 
   return (
     <div className="min-h-screen bg-white">
-      <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-[box-shadow,background-color] duration-300 ${
-          isAdmin ? adminNav : publicNav
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 ${
+          isAdmin
+            ? "border-b border-white/[0.06] bg-zinc-950/95 backdrop-blur-md"
+            : "border-b border-stone-200/90 bg-[#fcfcfb]/95 backdrop-blur-md shadow-[0_1px_0_0_rgba(255,255,255,0.9)_inset]"
         }`}
       >
         {!isAdmin && (
-          <div
-            className="h-px w-full bg-gradient-to-r from-transparent via-amber-700/35 to-transparent"
-            aria-hidden
-          />
+          <div className="flex h-[2px] w-full" aria-hidden>
+            <div className="flex-1 bg-gradient-to-r from-transparent via-amber-900/25 to-stone-400/30" />
+            <div className="w-px shrink-0 bg-stone-300/40" />
+            <div className="flex-1 bg-gradient-to-l from-transparent via-stone-500/20 to-amber-900/20" />
+          </div>
         )}
-        <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-3.5 sm:py-4">
-          <div className="flex items-center justify-between gap-4">
+
+        <nav className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+          <div className="flex h-[4.25rem] sm:h-[4.5rem] items-center justify-between gap-6">
             <Link
               to="/"
-              className={`group flex items-center shrink-0 rounded-2xl transition-[box-shadow,transform] duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
-                isAdmin
-                  ? "p-1.5 ring-1 ring-white/10 bg-white/[0.04] hover:bg-white/[0.07] focus-visible:ring-white/35"
-                  : "p-1.5 ring-1 ring-stone-200/80 bg-white/70 shadow-[0_2px_12px_-4px_rgba(28,25,23,0.08)] hover:ring-amber-900/15 hover:shadow-[0_8px_28px_-10px_rgba(120,83,50,0.18)] focus-visible:ring-amber-800/35"
+              className={`group flex min-w-0 items-center gap-3 sm:gap-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded-sm ${
+                isAdmin ? "focus-visible:ring-white/30" : "focus-visible:ring-amber-900/25"
               }`}
             >
               <img
-                src="/soulin-nav-logo.png"
-                alt="Soulin woodwork — 설린 우드팩토리"
-                width={200}
-                height={48}
+                src="/soulin-nav-mark.svg"
+                alt="Soulin — 설린 우드팩토리"
+                width={232}
+                height={40}
                 decoding="async"
-                className="h-9 sm:h-10 w-auto max-w-[min(200px,50vw)] object-contain object-left transition-transform duration-300 group-hover:scale-[1.02]"
+                className={`h-8 sm:h-9 w-auto max-w-[min(200px,58vw)] shrink-0 object-left object-contain transition-opacity duration-200 ${
+                  isAdmin ? "opacity-[0.92] [filter:brightness(1.15)_contrast(1.05)]" : "opacity-[0.97] group-hover:opacity-100"
+                }`}
               />
+              {!isAdmin && (
+                <div className="hidden min-[380px]:flex flex-col justify-center border-l border-stone-200/90 pl-3 sm:pl-4">
+                  <span className="text-[9px] font-semibold tracking-[0.35em] text-stone-500 leading-none">건축</span>
+                  <span className="mt-1 text-[9px] font-semibold tracking-[0.28em] text-stone-400 leading-none">
+                    인테리어
+                  </span>
+                </div>
+              )}
               <span className="sr-only">설린 우드팩토리 홈으로 이동</span>
             </Link>
 
-            {/* Desktop — capsule menu */}
-            <div
-              className={`hidden md:inline-flex items-center rounded-full p-1 gap-0.5 ${
-                isAdmin
-                  ? "bg-white/[0.06] ring-1 ring-white/[0.1] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]"
-                  : "bg-gradient-to-b from-white/95 to-stone-50/90 ring-1 ring-stone-200/90 shadow-[0_1px_0_0_rgba(255,255,255,0.9)_inset,0_10px_32px_-14px_rgba(28,25,23,0.14)]"
-              }`}
-            >
+            <div className="hidden md:flex items-center gap-1 lg:gap-2">
               {navItems.map((item) => {
                 const active = location.pathname === item.path;
-                const isEstimate = item.path === "/estimate";
                 return (
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`relative rounded-full px-5 py-2 text-[13px] font-medium tracking-[0.04em] transition-all duration-200 ${
+                    className={`relative px-3 lg:px-4 py-2 text-[11px] lg:text-xs font-semibold uppercase tracking-[0.18em] transition-colors duration-200 after:pointer-events-none after:absolute after:left-3 after:right-3 lg:after:left-4 lg:after:right-4 after:bottom-0 after:h-px after:transition-all after:duration-300 ${
                       active
                         ? isAdmin
-                          ? "text-white bg-white/[0.14] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)]"
-                          : "text-stone-50 bg-gradient-to-br from-stone-800 via-stone-900 to-stone-950 shadow-[0_4px_14px_-4px_rgba(28,25,23,0.45),inset_0_1px_0_0_rgba(255,255,255,0.12)]"
+                          ? "text-white after:opacity-100 after:bg-white/65"
+                          : "text-stone-900 after:opacity-100 after:bg-gradient-to-r after:from-transparent after:via-amber-900/70 after:to-transparent"
                         : isAdmin
-                          ? "text-stone-400 hover:text-white hover:bg-white/[0.06]"
-                          : isEstimate
-                            ? "text-stone-700 hover:text-stone-950 hover:bg-amber-50/90 ring-1 ring-transparent hover:ring-amber-200/60"
-                            : "text-stone-600 hover:text-stone-950 hover:bg-white/80"
+                          ? "text-zinc-500 hover:text-zinc-200 after:opacity-0 hover:after:opacity-50 after:bg-white/45"
+                          : "text-stone-500 hover:text-stone-800 after:opacity-0 hover:after:opacity-70 after:bg-stone-800/30"
                     }`}
                   >
                     {item.label}
@@ -99,42 +94,40 @@ export function MainLayout() {
 
             <button
               type="button"
-              className={`md:hidden rounded-full p-2.5 transition-all duration-200 ${
-                isAdmin
-                  ? "text-white ring-1 ring-white/15 bg-white/[0.06] hover:bg-white/10"
-                  : "text-stone-800 ring-1 ring-stone-200/90 bg-white/80 shadow-sm hover:bg-white hover:shadow-md hover:ring-stone-300/80"
+              className={`md:hidden rounded-sm p-2 transition-colors ${
+                isAdmin ? "text-zinc-300 hover:text-white" : "text-stone-700 hover:text-stone-950"
               }`}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-expanded={mobileMenuOpen}
               aria-label={mobileMenuOpen ? "메뉴 닫기" : "메뉴 열기"}
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? <X className="w-6 h-6 stroke-[1.5]" /> : <Menu className="w-6 h-6 stroke-[1.5]" />}
             </button>
           </div>
 
           {mobileMenuOpen && (
             <div
-              className={`md:hidden mt-4 overflow-hidden rounded-2xl border shadow-2xl ${
-                isAdmin
-                  ? "border-white/10 bg-[#141414]/95 backdrop-blur-xl"
-                  : "border-stone-200/80 bg-white/95 backdrop-blur-xl shadow-stone-900/10"
+              className={`md:hidden border-t ${
+                isAdmin ? "border-white/[0.06] bg-zinc-950" : "border-stone-200/80 bg-[#fcfcfb]"
               }`}
             >
-              <div className="p-2 space-y-0.5">
+              <div
+                className={`flex flex-col divide-y pb-3 ${isAdmin ? "divide-white/[0.08]" : "divide-stone-200/80"}`}
+              >
                 {navItems.map((item) => {
                   const active = location.pathname === item.path;
                   return (
                     <Link
                       key={item.path}
                       to={item.path}
-                      className={`block px-4 py-3.5 text-sm font-medium tracking-wide rounded-xl transition-colors ${
+                      className={`px-1 py-3.5 text-xs font-semibold uppercase tracking-[0.2em] transition-colors ${
                         active
                           ? isAdmin
-                            ? "bg-white/12 text-white"
-                            : "bg-gradient-to-r from-stone-800 to-stone-900 text-white shadow-md"
+                            ? "text-white bg-white/[0.04]"
+                            : "text-stone-900 bg-stone-100/60"
                           : isAdmin
-                            ? "text-stone-400 hover:bg-white/[0.06] hover:text-white"
-                            : "text-stone-700 hover:bg-stone-100/90"
+                            ? "text-zinc-400 hover:text-white hover:bg-white/[0.03]"
+                            : "text-stone-600 hover:text-stone-900 hover:bg-stone-50/80"
                       }`}
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -145,10 +138,10 @@ export function MainLayout() {
               </div>
             </div>
           )}
-        </div>
-      </nav>
+        </nav>
+      </header>
 
-      <main className={isAdmin ? "pt-[72px]" : "pt-[78px] sm:pt-[82px]"}>
+      <main className={isAdmin ? "pt-[68px]" : "pt-[calc(2px+4.25rem)] sm:pt-[calc(2px+4.5rem)]"}>
         <Outlet />
       </main>
       {!isAdmin && <SiteFooter />}

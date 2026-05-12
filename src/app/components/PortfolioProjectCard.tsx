@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { MapPin } from "lucide-react";
 import type { Portfolio } from "../../types";
 import { formatPortfolioBudgetDisplay } from "../../lib/formatPortfolioBudget";
+import { prefetchPortfolioDetail } from "../../lib/api";
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1676716244847-3fae1a2afb5b?w=1080";
 
@@ -36,8 +37,9 @@ export function PortfolioProjectCard({ project }: { project: PortfolioCardProjec
     <Link
       to={`/portfolio/${project.id}`}
       className="group relative rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 border border-gray-100/80 block bg-black h-full"
+      onPointerEnter={() => prefetchPortfolioDetail(project.id)}
     >
-      <div className="aspect-[3/4] min-h-[280px] sm:min-h-[320px] overflow-hidden relative">
+      <div className="aspect-[3/4] min-h-[240px] sm:min-h-[300px] md:min-h-[320px] overflow-hidden relative">
         <img
           src={project.image}
           alt={project.name}
@@ -54,20 +56,22 @@ export function PortfolioProjectCard({ project }: { project: PortfolioCardProjec
           </span>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6 text-left">
-          <h3 className="text-xl sm:text-2xl font-semibold text-white tracking-tight mb-2 line-clamp-2 group-hover:text-amber-100 transition-colors">
+        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 text-left">
+          <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-white tracking-tight mb-2 line-clamp-3 group-hover:text-amber-100 transition-colors [overflow-wrap:anywhere]">
             {project.name}
           </h3>
-          <div className="flex items-center gap-1.5 text-sm text-white/85 mb-1.5">
-            <MapPin className="w-3.5 h-3.5 shrink-0 opacity-90" aria-hidden />
-            <span className="truncate">{project.location}</span>
+          <div className="flex items-start gap-1.5 text-sm text-white/85 mb-1.5">
+            <MapPin className="w-3.5 h-3.5 shrink-0 opacity-90 mt-0.5" aria-hidden />
+            <span className="min-w-0 leading-snug line-clamp-3 [overflow-wrap:anywhere]">{project.location}</span>
           </div>
-          <p className="text-xs text-white/65 mb-3 line-clamp-1">
+          <p className="text-xs text-white/65 mb-3 line-clamp-2 [overflow-wrap:anywhere]">
             면적 {project.area} · {project.duration}
           </p>
-          <div className="flex items-baseline justify-between gap-3 pt-2 border-t border-white/20">
-            <span className="text-[11px] uppercase tracking-wider text-white/55">시공비</span>
-            <span className="text-lg sm:text-xl font-medium text-white tabular-nums">{project.budget}</span>
+          <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1 pt-2 border-t border-white/20">
+            <span className="text-[11px] uppercase tracking-wider text-white/55 shrink-0">시공비</span>
+            <span className="text-base sm:text-lg md:text-xl font-medium text-white tabular-nums text-right [overflow-wrap:anywhere] min-w-0">
+              {project.budget}
+            </span>
           </div>
           <p className="mt-3 text-[11px] text-white/45">상세 보기 →</p>
         </div>

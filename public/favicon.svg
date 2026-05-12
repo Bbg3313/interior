@@ -1,7 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="8" fill="#faf3e8"/>
-  <rect x="5" y="7" width="22" height="4" rx="1.5" fill="#7c4f2e"/>
-  <rect x="5" y="13" width="22" height="4" rx="1.5" fill="#9a6b3f"/>
-  <rect x="5" y="19" width="22" height="4" rx="1.5" fill="#c4a574"/>
-  <rect x="11" y="11" width="10" height="8" rx="1" fill="#3f2e22" opacity="0.42"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="망치">
+  <rect width="32" height="32" rx="7" fill="#fff7ed" stroke="#e7e5e4" stroke-width="1"/>
+  <!-- Striking head: wide bar, high contrast -->
+  <rect x="0.5" y="5" width="31" height="13" rx="4" fill="#1c1917"/>
+  <rect x="19" y="6.5" width="10" height="10" rx="2.5" fill="#57534e"/>
+  <!-- Handle: thick wood tone -->
+  <rect x="10" y="17" width="12" height="14.5" rx="3.5" fill="#c2410c"/>
+  <rect x="12" y="19.5" width="8" height="10" rx="2" fill="#9a3412"/>
 </svg>

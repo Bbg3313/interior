@@ -1,14 +1,17 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useParams } from "react-router";
 import { MapPin, Ruler, Banknote, Tag, ArrowLeft, X, ChevronLeft, ChevronRight, ClipboardList } from "lucide-react";
-import { getPortfolio } from "../../lib/api";
+import { getPortfolioCached } from "../../lib/api";
 import { formatPortfolioBudgetDisplay } from "../../lib/formatPortfolioBudget";
+import { optimizePortfolioImageUrl } from "../../lib/portfolioImageUrls";
 
 export function PortfolioDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const [portfolio, setPortfolio] = useState<Awaited<ReturnType<typeof getPortfolio>>>(null);
+  const [portfolio, setPortfolio] = useState<Awaited<ReturnType<typeof getPortfolioCached>>>(null);
   const [loading, setLoading] = useState(true);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  /** Supabase/Unsplash 최적화 URL이 4xx 등이면 원본으로 재시도 */
+  const [imageOptOut, setImageOptOut] = useState(false);
 
   useEffect(() => {
     const numId = id ? parseInt(id, 10) : NaN;
@@ -17,10 +20,32 @@ export function PortfolioDetailPage() {
       setLoading(false);
       return;
     }
-    getPortfolio(numId)
+    getPortfolioCached(numId)
       .then(setPortfolio)
       .catch(() => setPortfolio(null))
       .finally(() => setLoading(false));
+  }, [id]);
+
+  useEffect(() => {
+    const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+    if (!url) return;
+    let origin: string;
+    try {
+      origin = new URL(url).origin;
+    } catch {
+      return;
+    }
+    const link = document.createElement("link");
+    link.rel = "preconnect";
+    link.href = origin;
+    document.head.appendChild(link);
+    return () => {
+      document.head.removeChild(link);
+    };
+  }, []);
+
+  useEffect(() => {
+    setImageOptOut(false);
   }, [id]);
 
   const closeLightbox = useCallback(() => setLightboxIndex(null), []);
@@ -42,8 +67,32 @@ export function PortfolioDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
-        <div className="text-gray-500">로딩 중...</div>
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+        <div className="max-w-5xl mx-auto px-6 lg:px-8 py-12">
+          <Link
+            to="/portfolio"
+            className="inline-flex items-center gap-2 text-gray-400 hover:text-gray-700 mb-10 text-sm font-medium transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" /> 포트폴리오 목록
+          </Link>
+          <article className="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 animate-pulse">
+            <div className="aspect-[16/10] bg-gray-200" />
+            <div className="p-8 md:p-12 space-y-6">
+              <div className="flex gap-2">
+                <div className="h-8 w-24 rounded-full bg-gray-200" />
+                <div className="h-8 w-20 rounded-full bg-gray-200" />
+              </div>
+              <div className="h-12 w-full max-w-md rounded-lg bg-gray-200" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="h-24 rounded-2xl bg-gray-100" />
+                <div className="h-24 rounded-2xl bg-gray-100" />
+                <div className="h-24 rounded-2xl bg-gray-100 sm:col-span-2" />
+                <div className="h-24 rounded-2xl bg-gray-100" />
+              </div>
+            </div>
+          </article>
+          <p className="text-center text-sm text-gray-500 mt-8">불러오는 중…</p>
+        </div>
       </div>
     );
   }
@@ -65,10 +114,12 @@ export function PortfolioDetailPage() {
   const normalizeUrl = (url: string) => (url.startsWith("http") ? url : fallbackImage);
   const galleryImages: string[] =
     portfolio.imageUrls?.length ? portfolio.imageUrls : [portfolio.imageUrl].filter(Boolean);
-  const displayImages = galleryImages.map(normalizeUrl);
+  const displayImagesRaw = galleryImages.map(normalizeUrl);
+  const imgSrc = (url: string, maxWidth: number) =>
+    imageOptOut ? url : optimizePortfolioImageUrl(url, maxWidth);
 
   const safeIndex = lightboxIndex !== null
-    ? ((lightboxIndex % displayImages.length) + displayImages.length) % displayImages.length
+    ? ((lightboxIndex % displayImagesRaw.length) + displayImagesRaw.length) % displayImagesRaw.length
     : null;
 
   return (
@@ -83,33 +134,46 @@ export function PortfolioDetailPage() {
 
         <article className="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100">
           <div className="space-y-4">
-            {displayImages.length > 0 && (
+            {displayImagesRaw.length > 0 && (
               <button
                 type="button"
                 onClick={() => setLightboxIndex(0)}
-                className="w-full aspect-[16/10] overflow-hidden rounded-t-3xl cursor-zoom-in block"
+                className="w-full aspect-[16/10] overflow-hidden rounded-t-3xl cursor-zoom-in block bg-gray-100"
               >
                 <img
-                  src={displayImages[0]}
+                  key={`hero-${imageOptOut}`}
+                  src={imgSrc(displayImagesRaw[0], 1600)}
                   alt={`${portfolio.name} - 1`}
                   className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                  fetchPriority="high"
+                  decoding="async"
+                  sizes="(max-width: 1024px) 100vw, 1024px"
+                  width={1600}
+                  height={1000}
+                  onError={() => setImageOptOut(true)}
                 />
               </button>
             )}
-            {displayImages.length > 1 && (
+            {displayImagesRaw.length > 1 && (
               <div className="px-4 pb-4">
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {displayImages.slice(1).map((src, i) => (
+                  {displayImagesRaw.slice(1).map((src, i) => (
                     <button
                       type="button"
-                      key={i}
+                      key={`${i}-${src.slice(-24)}`}
                       onClick={() => setLightboxIndex(i + 1)}
                       className="aspect-[4/3] overflow-hidden rounded-2xl bg-gray-100 cursor-zoom-in block"
                     >
                       <img
-                        src={src}
+                        src={imgSrc(src, 800)}
                         alt={`${portfolio.name} - ${i + 2}`}
                         className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                        loading="lazy"
+                        decoding="async"
+                        sizes="(max-width: 640px) 45vw, 280px"
+                        width={800}
+                        height={600}
+                        onError={() => setImageOptOut(true)}
                       />
                     </button>
                   ))}
@@ -223,7 +287,7 @@ export function PortfolioDetailPage() {
           </button>
 
           {/* 이전 */}
-          {displayImages.length > 1 && (
+          {displayImagesRaw.length > 1 && (
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); setLightboxIndex(safeIndex - 1); }}
@@ -235,14 +299,19 @@ export function PortfolioDetailPage() {
 
           {/* 이미지 */}
           <img
-            src={displayImages[safeIndex]}
+            key={`lb-${imageOptOut}-${safeIndex}`}
+            src={imgSrc(displayImagesRaw[safeIndex], 2400)}
             alt={`${portfolio.name} - ${safeIndex + 1}`}
             className="max-h-[85vh] max-w-[90vw] object-contain rounded-lg shadow-2xl select-none"
+            fetchPriority="high"
+            decoding="async"
+            sizes="90vw"
             onClick={(e) => e.stopPropagation()}
+            onError={() => setImageOptOut(true)}
           />
 
           {/* 다음 */}
-          {displayImages.length > 1 && (
+          {displayImagesRaw.length > 1 && (
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); setLightboxIndex(safeIndex + 1); }}
@@ -253,9 +322,9 @@ export function PortfolioDetailPage() {
           )}
 
           {/* 카운터 */}
-          {displayImages.length > 1 && (
+          {displayImagesRaw.length > 1 && (
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-white/10 text-white text-sm font-medium">
-              {safeIndex + 1} / {displayImages.length}
+              {safeIndex + 1} / {displayImagesRaw.length}
             </div>
           )}
         </div>

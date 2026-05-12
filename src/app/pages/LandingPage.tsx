@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import { Link } from "react-router";
-import { ArrowRight, Sparkles, TrendingUp, FileText, Ruler, HardHat, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, Sparkles, TrendingUp, FileText, Ruler, HardHat, ShieldCheck, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 import { getPortfolios, getReviews, getHeroImageSlides } from "../../lib/api";
 import type { Review } from "../../types";
 import { PortfolioProjectCard, mapPortfolioToCardProject, type PortfolioCardProject } from "../components/PortfolioProjectCard";
@@ -22,13 +22,14 @@ export function LandingPage() {
   /** 수동으로 슬라이드를 바꾸면 자동 재생 타이머를 다시 맞추기 위한 키 */
   const [heroAutoplayKey, setHeroAutoplayKey] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [pageSize, setPageSize] = useState(1);
-  const [carouselStart, setCarouselStart] = useState(0);
+  const [pageSize, setPageSize] = useState(2);
+  /** 랜딩 포트폴리오: 처음 pageSize개만 보이다가「더 보기」로 pageSize씩 추가 (좌우 캐러셀 없음) */
+  const [portfolioMoreLoads, setPortfolioMoreLoads] = useState(0);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const updatePageSize = () => {
       if (typeof window === "undefined") return;
-      /* lg+: 3열×2행, md: 2열×2행, 모바일: 2열×1행(한 화면에 2개) */
+      /* lg+: 한 번에 6개, md: 4개, 모바일: 1열 2개(2행)부터 */
       if (window.matchMedia("(min-width: 1024px)").matches) setPageSize(6);
       else if (window.matchMedia("(min-width: 768px)").matches) setPageSize(4);
       else setPageSize(2);
@@ -78,35 +79,16 @@ export function LandingPage() {
     return () => { cancelled = true; };
   }, []);
 
-  const maxCarouselStart = useMemo(() => {
-    const len = portfolioProjects.length;
-    if (len <= pageSize) return 0;
-    return (Math.ceil(len / pageSize) - 1) * pageSize;
-  }, [portfolioProjects.length, pageSize]);
-
   useEffect(() => {
-    setCarouselStart((s) => {
-      const snapped = Math.floor(s / pageSize) * pageSize;
-      return Math.min(Math.max(0, snapped), maxCarouselStart);
-    });
-  }, [maxCarouselStart, pageSize, portfolioProjects.length]);
+    setPortfolioMoreLoads(0);
+  }, [pageSize, portfolioProjects.length]);
 
-  const visiblePortfolios = useMemo(
-    () => portfolioProjects.slice(carouselStart, carouselStart + pageSize),
-    [portfolioProjects, carouselStart, pageSize]
+  const landingPortfolioVisible = Math.min(
+    portfolioProjects.length,
+    pageSize * (portfolioMoreLoads + 1)
   );
-
-  const canPrev = carouselStart > 0;
-  const canNext = carouselStart < maxCarouselStart;
-  const showCarouselNav = portfolioProjects.length > pageSize;
-  const rangeEnd = Math.min(carouselStart + pageSize, portfolioProjects.length);
-
-  const stepCarousel = (dir: -1 | 1) => {
-    setCarouselStart((s) => {
-      if (dir < 0) return Math.max(0, s - pageSize);
-      return Math.min(maxCarouselStart, s + pageSize);
-    });
-  };
+  const canLoadMorePortfolios = landingPortfolioVisible < portfolioProjects.length;
+  const nextPortfolioBatch = Math.min(pageSize, portfolioProjects.length - landingPortfolioVisible);
 
   useEffect(() => {
     setHeroActiveIndex(0);
@@ -230,60 +212,28 @@ export function LandingPage() {
             <div className="text-center py-12 text-gray-500">등록된 프로젝트가 없습니다.</div>
           ) : (
             <div className="relative">
-              {showCarouselNav && (
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 md:mb-8 text-sm text-gray-500">
-                  <span>
-                    {portfolioProjects.length}개 중 {carouselStart + 1}–{rangeEnd}번째
-                  </span>
-                </div>
+              {portfolioProjects.length > pageSize && (
+                <p className="mb-4 text-center text-sm text-gray-500 sm:mb-6 sm:text-left">
+                  총 {portfolioProjects.length}개 · {landingPortfolioVisible}개 표시
+                </p>
               )}
-              <div className="flex items-stretch gap-4 sm:gap-6 md:gap-8 lg:gap-10">
-                <button
-                  type="button"
-                  aria-label="이전 프로젝트"
-                  disabled={!canPrev}
-                  onClick={() => stepCarousel(-1)}
-                  className="hidden sm:flex shrink-0 w-12 h-12 md:w-14 md:h-14 self-center items-center justify-center rounded-full border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 hover:border-gray-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
-                >
-                  <ChevronLeft className="w-6 h-6 md:w-7 md:h-7" />
-                </button>
-
-                <div className="flex-1 min-w-0 grid grid-cols-2 lg:grid-cols-3 gap-4 gap-y-8 sm:gap-x-6 sm:gap-y-10 md:gap-x-10 md:gap-y-12 lg:gap-x-12 lg:gap-y-14">
-                  {visiblePortfolios.map((project) => (
-                    <PortfolioProjectCard key={project.id} project={project} />
-                  ))}
-                </div>
-
-                <button
-                  type="button"
-                  aria-label="다음 프로젝트"
-                  disabled={!canNext}
-                  onClick={() => stepCarousel(1)}
-                  className="hidden sm:flex shrink-0 w-12 h-12 md:w-14 md:h-14 self-center items-center justify-center rounded-full border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 hover:border-gray-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
-                >
-                  <ChevronRight className="w-6 h-6 md:w-7 md:h-7" />
-                </button>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 gap-y-10 sm:gap-x-8 sm:gap-y-10 md:gap-x-10 md:gap-y-12 lg:gap-x-12 lg:gap-y-14">
+                {portfolioProjects.slice(0, landingPortfolioVisible).map((project) => (
+                  <PortfolioProjectCard key={project.id} project={project} />
+                ))}
               </div>
 
-              {showCarouselNav && (
-                <div className="flex sm:hidden justify-center gap-8 mt-10">
+              {canLoadMorePortfolios && (
+                <div className="mt-8 flex justify-center sm:mt-10">
                   <button
                     type="button"
-                    aria-label="이전"
-                    disabled={!canPrev}
-                    onClick={() => stepCarousel(-1)}
-                    className="w-12 h-12 flex items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm disabled:opacity-30"
+                    onClick={() => setPortfolioMoreLoads((n) => n + 1)}
+                    aria-label={`포트폴리오 ${nextPortfolioBatch}개 더 펼치기`}
+                    className="inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white px-5 py-3 text-sm font-medium text-gray-900 shadow-sm transition hover:border-gray-400 hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-800/30"
                   >
-                    <ChevronLeft className="w-6 h-6" />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="다음"
-                    disabled={!canNext}
-                    onClick={() => stepCarousel(1)}
-                    className="w-12 h-12 flex items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm disabled:opacity-30"
-                  >
-                    <ChevronRight className="w-6 h-6" />
+                    <ChevronDown className="h-5 w-5 shrink-0 text-gray-600" aria-hidden />
+                    더 보기
+                    <span className="font-normal text-gray-500">({nextPortfolioBatch}개)</span>
                   </button>
                 </div>
               )}

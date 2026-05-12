@@ -121,6 +121,31 @@ export async function getPortfolio(id: number): Promise<Portfolio | null> {
   return data ? rowToPortfolio(data as Record<string, unknown>) : null;
 }
 
+const portfolioDetailCache = new Map<number, Portfolio | null>();
+const portfolioDetailInflight = new Map<number, Promise<Portfolio | null>>();
+
+/** 동일 id 재방문·목록에서 프리패치 시 즉시 반환 */
+export async function getPortfolioCached(id: number): Promise<Portfolio | null> {
+  if (portfolioDetailCache.has(id)) return portfolioDetailCache.get(id)!;
+  const inflight = portfolioDetailInflight.get(id);
+  if (inflight) return inflight;
+
+  const p = getPortfolio(id).then((row) => {
+    portfolioDetailCache.set(id, row);
+    portfolioDetailInflight.delete(id);
+    return row;
+  });
+  portfolioDetailInflight.set(id, p);
+  return p;
+}
+
+/** 목록 카드 호버 등 — 상세 진입 전 데이터·이미지 URL 선로딩 */
+export function prefetchPortfolioDetail(id: number): void {
+  if (portfolioDetailCache.has(id) || portfolioDetailInflight.has(id)) return;
+  void getPortfolioCached(id);
+}
+
+
 export async function createPortfolio(input: CreatePortfolioInput): Promise<Portfolio> {
   assertSupabaseConfigured();
   const allUrls = [input.imageUrl, ...(input.imageUrls ?? [])].filter(Boolean);
@@ -167,6 +192,7 @@ export async function updatePortfolio(input: UpdatePortfolioInput): Promise<Port
     .select()
     .single();
   if (error) throw error;
+  portfolioDetailCache.delete(input.id);
   return rowToPortfolio(data as Record<string, unknown>);
 }
 

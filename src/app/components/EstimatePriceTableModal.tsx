@@ -107,12 +107,23 @@ export function EstimatePriceTableModal({ open, onClose }: Props) {
               단위: 만원/평 (명시 ㎡ 제외)
             </span>
             <span className="px-3 py-1 rounded-full bg-amber-400/15 border border-amber-400/25 text-amber-100">
-              Interior PRO 견적 시스템
+              매장·상업 공종 단가표
             </span>
           </div>
         </div>
 
         <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-6 md:px-8 md:py-7 space-y-5 bg-gradient-to-b from-gray-50/80 to-white">
+          <SectionCard title="견적 시스템 개요 (안내)" accent="yellow">
+            <ul className="text-xs text-gray-700 space-y-2 leading-relaxed list-disc pl-4">
+              <li>건축·주거공간: 평당 500만원부터 (옵션·자재에 따라 금액 상이)</li>
+              <li>매장·상업공간: 아래 공종 단가표 기준 자동 합산</li>
+              <li>주문제작 가구·목공사: 소재·마감에 따라 상이 (상담)</li>
+              <li>전시·행사: 상담 필요</li>
+              <li>CNC 가공: 합판 1장당 1시간 기준 6만원 (15T 기준, 상담 시 확정)</li>
+              <li>데크·조경시설물: 상담 필요</li>
+            </ul>
+          </SectionCard>
+
           <SectionCard title="철거" accent="slate">
             <Row
               name={ESTIMATE_DEMOLITION.label}

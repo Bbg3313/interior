@@ -31,6 +31,8 @@ import {
   computeEstimateRange,
   formatEstimateSummaryForLead,
   totalPerPyeongFromLines,
+  getEstimatePricingMode,
+  consultationEstimateNote,
   type EstimateFormState,
   type FlooringId,
   type WallpaperId,
@@ -59,8 +61,9 @@ export function EstimatePage() {
   });
   const [submitting, setSubmitting] = useState(false);
 
-  const { min, max, lines } = useMemo(() => computeEstimateRange(form), [form]);
+  const { min, max, lines, consultationOnly } = useMemo(() => computeEstimateRange(form), [form]);
   const perPyeongTotal = totalPerPyeongFromLines(lines);
+  const pricingMode = getEstimatePricingMode(form.industry);
 
   useEffect(() => {
     if (searchParams.get("prices") !== "1") return;
@@ -127,9 +130,9 @@ export function EstimatePage() {
               인테리어 견적 시스템
             </h1>
             <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              업종·면적·공종을 선택하면 기본 공종 단가(만원/평)로 예상 범위를 산출합니다.
+              건축·주거는 평당 500만원 기준, 매장·상업은 공종 단가 합산, 그 외 업종은 상담 견적(견적시스템.pdf 기준)입니다.
               <span className="block text-sm text-gray-500 mt-2">
-                실제 금액은 현장 조건·브랜드·폐기물량 등에 따라 달라질 수 있습니다.
+                실제 금액은 현장 조건·자재·물량에 따라 달라질 수 있습니다.
               </span>
             </p>
             <button
@@ -258,12 +261,59 @@ export function EstimatePage() {
                   </div>
                 )}
 
-                {step === 3 && (
+                {step === 3 && pricingMode === "consultation" && (
+                  <div className="space-y-6">
+                    <div>
+                      <h2 className="text-2xl md:text-3xl mb-2">상담 견적</h2>
+                      <p className="text-gray-600 text-sm md:text-base leading-relaxed">
+                        선택하신 업종은 자동 금액 합산이 적용되지 않습니다. 아래 기준으로 담당자가 연락드린 뒤 견적이 진행됩니다.
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border-2 border-amber-100 bg-amber-50/60 p-6 text-sm text-gray-800 leading-relaxed space-y-3">
+                      <p className="font-semibold text-gray-900">업종별 안내</p>
+                      <p>{consultationEstimateNote(form.industry)}</p>
+                    </div>
+                    <div className="flex justify-between pt-4">
+                      <button
+                        type="button"
+                        onClick={() => setStep(2)}
+                        className="flex items-center gap-2 px-8 py-4 border-2 border-gray-200 rounded-full hover:bg-gray-50 transition-all"
+                      >
+                        <ArrowLeft className="w-5 h-5" /> 이전
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {step === 3 && pricingMode === "residential" && (
+                  <div className="space-y-8">
+                    <div>
+                      <h2 className="text-2xl md:text-3xl mb-2">주거 공간 견적 기준</h2>
+                      <p className="text-gray-600 text-sm md:text-base">
+                        건축·주거공간은 평당 <strong className="text-gray-900">500만원</strong>부터 책정하며, 옵션·자재·현장 조건에 따라 가산됩니다. 아래 예상 범위는 면적만 반영한 참고 구간입니다.
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border-2 border-gray-100 bg-gray-50/80 p-6 text-sm text-gray-700 leading-relaxed">
+                      매장·상업공간과 달리 공종별 체크리스트는 사용하지 않습니다. 세부 공사는 상담 시 반영됩니다.
+                    </div>
+                    <div className="flex justify-between pt-4">
+                      <button
+                        type="button"
+                        onClick={() => setStep(2)}
+                        className="flex items-center gap-2 px-8 py-4 border-2 border-gray-200 rounded-full hover:bg-gray-50 transition-all"
+                      >
+                        <ArrowLeft className="w-5 h-5" /> 이전
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {step === 3 && pricingMode === "commercial" && (
                   <div className="space-y-10">
                     <div>
                       <h2 className="text-2xl md:text-3xl mb-2">공종 구성</h2>
                       <p className="text-gray-600 text-sm md:text-base">
-                        단가표(만원/평)를 기준으로 선택합니다. 필름·도장은 ㎡ 단가를 벽면적 가정으로 환산합니다.
+                        매장·상업공간: 단가표(만원/평)를 기준으로 선택합니다. 필름·도장은 ㎡ 단가를 벽면적 가정으로 환산합니다.
                       </p>
                     </div>
 
@@ -464,22 +514,31 @@ export function EstimatePage() {
                     </div>
                   </div>
                   <div>
-                    <div className="text-gray-500 mb-2">선택 공종 (평당 합산)</div>
+                    <div className="text-gray-500 mb-2">
+                      {consultationOnly ? "견적 방식" : "선택 공종 (평당 합산)"}
+                    </div>
                     {lines.length === 0 ? (
-                      <p className="text-gray-400 text-xs">철거 외 선택 없음 시에도 철거만 반영됩니다.</p>
+                      <p className="text-gray-400 text-xs">표시할 항목이 없습니다.</p>
                     ) : (
                       <ul className="space-y-2 max-h-48 overflow-y-auto pr-1">
                         {lines.map((l, i) => (
-                          <li key={i} className="flex justify-between gap-2 text-xs">
-                            <span className="text-gray-700 truncate">{l.label}</span>
-                            <span className="shrink-0 text-gray-900 tabular-nums">{l.perPyeong}</span>
+                          <li key={i} className="flex flex-col gap-0.5 text-xs border-b border-gray-50 last:border-0 pb-2 last:pb-0">
+                            <div className="flex justify-between gap-2">
+                              <span className="text-gray-700 truncate">{l.label}</span>
+                              <span className="shrink-0 text-gray-900 tabular-nums">
+                                {l.perPyeong > 0 ? `${l.perPyeong}만원/평` : "—"}
+                              </span>
+                            </div>
+                            {l.sub && <p className="text-[11px] text-gray-500 leading-snug">{l.sub}</p>}
                           </li>
                         ))}
                       </ul>
                     )}
                     <div className="flex justify-between mt-3 pt-3 border-t border-dashed border-gray-200 font-semibold text-sm">
-                      <span>참고 평당 합계</span>
-                      <span className="tabular-nums">{perPyeongTotal}만원/평</span>
+                      <span>{consultationOnly ? "자동 합산" : "참고 평당 합계"}</span>
+                      <span className="tabular-nums text-right">
+                        {consultationOnly ? "해당 없음" : `${perPyeongTotal}만원/평`}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -494,10 +553,23 @@ export function EstimatePage() {
                     </div>
                   ) : (
                     <>
-                      <div className="text-3xl md:text-4xl font-light bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent tabular-nums">
-                        {min.toLocaleString()}만원
-                      </div>
-                      <div className="text-gray-600 mb-6">~ {max.toLocaleString()}만원</div>
+                      {consultationOnly ? (
+                        <div className="text-xl md:text-2xl font-semibold text-gray-800 mb-2 leading-snug">
+                          상담 후 확정
+                        </div>
+                      ) : (
+                        <div className="mb-6">
+                          <div className="text-3xl md:text-4xl font-light bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent tabular-nums">
+                            {min.toLocaleString()}만원
+                          </div>
+                          <div className="text-gray-600">~ {max.toLocaleString()}만원</div>
+                        </div>
+                      )}
+                      {consultationOnly && (
+                        <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+                          자동 금액 산출 없이 접수됩니다. 담당자가 연락드린 뒤 견적을 안내드립니다.
+                        </p>
+                      )}
                     </>
                   )}
 
@@ -510,7 +582,11 @@ export function EstimatePage() {
                     정확한 견적 요청하기
                   </button>
                   <p className="mt-3 text-[11px] text-gray-500 text-center leading-relaxed">
-                    * 본 산출은 단가표 기준 자동 합산입니다. 현장 실측 후 확정 견적이 발행됩니다.
+                    {consultationOnly
+                      ? "* 상담 견적 업종입니다. 현장 또는 유선 상담 후 확정 견적이 발행됩니다."
+                      : pricingMode === "residential"
+                        ? "* 주거 공간은 평당 500만원 기준 참고 구간이며, 옵션·자재에 따라 달라질 수 있습니다."
+                        : "* 매장·상업은 공종 단가표 기준 자동 합산입니다. 현장 실측 후 확정 견적이 발행됩니다."}
                   </p>
                 </div>
               </div>
@@ -543,13 +619,22 @@ export function EstimatePage() {
                 <div className="bg-gradient-to-br from-yellow-50 to-amber-50 border border-yellow-200 rounded-2xl p-6">
                   <div className="flex items-center gap-2 mb-2">
                     <Sparkles className="w-5 h-5 text-yellow-600" />
-                    <span className="font-semibold text-gray-900">예상 범위</span>
+                    <span className="font-semibold text-gray-900">
+                      {consultationOnly ? "접수 유형" : "예상 범위"}
+                    </span>
                   </div>
-                  <div className="text-2xl font-light text-gray-900 tabular-nums">
-                    {min.toLocaleString()}만원 ~ {max.toLocaleString()}만원
-                  </div>
+                  {consultationOnly ? (
+                    <div className="text-lg font-medium text-gray-900 leading-relaxed">
+                      상담 견적 · 금액은 상담 후 확정
+                    </div>
+                  ) : (
+                    <div className="text-2xl font-light text-gray-900 tabular-nums">
+                      {min.toLocaleString()}만원 ~ {max.toLocaleString()}만원
+                    </div>
+                  )}
                   <div className="text-sm text-gray-600 mt-1">
-                    {form.industry} · {form.area}평 · 평당 합산 약 {perPyeongTotal}만원
+                    {form.industry} · {form.area}평
+                    {!consultationOnly && ` · 평당 합산 약 ${perPyeongTotal}만원`}
                   </div>
                 </div>
 

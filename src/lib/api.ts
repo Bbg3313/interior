@@ -37,7 +37,10 @@ export async function getLeads(): Promise<Lead[]> {
 
 export async function createLead(input: CreateLeadInput): Promise<Lead> {
   assertSupabaseConfigured();
-  const budget = `${input.estimateMin.toLocaleString()}만원 ~ ${input.estimateMax.toLocaleString()}만원`;
+  const budget =
+    input.estimateMin === 0 && input.estimateMax === 0
+      ? "상담 후 확정"
+      : `${input.estimateMin.toLocaleString()}만원 ~ ${input.estimateMax.toLocaleString()}만원`;
   const { data, error } = await supabase
     .from("leads")
     .insert({

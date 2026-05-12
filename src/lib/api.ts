@@ -94,6 +94,8 @@ function rowToPortfolio(row: Record<string, unknown>): Portfolio {
     duration: (row.duration as string) ?? "",
     imageUrl: (row.image_url as string) ?? "",
     imageUrls: parseImageUrls(row.image_urls),
+    remarkTitle: (row.remark_title as string) ?? "",
+    remarkBody: (row.remark_body as string) ?? "",
     createdAt: row.created_at as string | undefined,
   };
 }
@@ -134,6 +136,8 @@ export async function createPortfolio(input: CreatePortfolioInput): Promise<Port
       duration: input.duration,
       image_url: input.imageUrl,
       image_urls: allUrls,
+      remark_title: input.remarkTitle?.trim() ?? "",
+      remark_body: input.remarkBody?.trim() ?? "",
     })
     .select()
     .single();
@@ -156,6 +160,8 @@ export async function updatePortfolio(input: UpdatePortfolioInput): Promise<Port
       duration: input.duration,
       image_url: input.imageUrl,
       image_urls: allUrls,
+      remark_title: input.remarkTitle?.trim() ?? "",
+      remark_body: input.remarkBody?.trim() ?? "",
     })
     .eq("id", input.id)
     .select()

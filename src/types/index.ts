@@ -31,6 +31,9 @@ export interface Portfolio {
   imageUrl: string;
   /** 갤러리용 이미지 URL 배열 (비어 있으면 imageUrl만 사용) */
   imageUrls?: string[];
+  /** 상세 페이지 하단 비고 — 제목·본문 (둘 다 비어 있으면 블록 미표시) */
+  remarkTitle?: string;
+  remarkBody?: string;
   createdAt?: string;
 }
 
@@ -77,6 +80,10 @@ export interface CreatePortfolioInput {
   imageUrl: string;
   /** 추가 이미지 URL (한 줄에 하나, 갤러리용) */
   imageUrls?: string[];
+  /** 상세 비고 제목 */
+  remarkTitle?: string;
+  /** 상세 비고 본문 */
+  remarkBody?: string;
 }
 
 /** 포트폴리오 수정 시 넣는 데이터 */

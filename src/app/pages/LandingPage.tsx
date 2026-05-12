@@ -28,10 +28,10 @@ export function LandingPage() {
   useEffect(() => {
     const updatePageSize = () => {
       if (typeof window === "undefined") return;
-      /* lg+: 3열×2행, md: 2열×2행, 모바일: 1열 */
+      /* lg+: 3열×2행, md: 2열×2행, 모바일: 2열×1행(한 화면에 2개) */
       if (window.matchMedia("(min-width: 1024px)").matches) setPageSize(6);
       else if (window.matchMedia("(min-width: 768px)").matches) setPageSize(4);
-      else setPageSize(1);
+      else setPageSize(2);
     };
     updatePageSize();
     window.addEventListener("resize", updatePageSize);
@@ -248,7 +248,7 @@ export function LandingPage() {
                   <ChevronLeft className="w-6 h-6 md:w-7 md:h-7" />
                 </button>
 
-                <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10 md:gap-x-10 md:gap-y-12 lg:gap-x-12 lg:gap-y-14">
+                <div className="flex-1 min-w-0 grid grid-cols-2 lg:grid-cols-3 gap-4 gap-y-8 sm:gap-x-6 sm:gap-y-10 md:gap-x-10 md:gap-y-12 lg:gap-x-12 lg:gap-y-14">
                   {visiblePortfolios.map((project) => (
                     <PortfolioProjectCard key={project.id} project={project} />
                   ))}
@@ -303,8 +303,8 @@ export function LandingPage() {
             <p className="text-xl text-gray-600">체계적인 프로세스로 신뢰할 수 있는 시공을 약속합니다</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-4 relative">
-            {/* Connecting Lines - Hidden on mobile */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-10 sm:gap-x-6 sm:gap-y-12 md:gap-4 relative">
+            {/* Connecting Lines — 데스크톱 가로 프로세스만 */}
             <div className="hidden md:block absolute top-20 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-200 via-blue-300 to-blue-200 mx-[10%]" />
             
             {/* Step 1 */}

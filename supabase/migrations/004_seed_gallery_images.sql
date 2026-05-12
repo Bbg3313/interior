@@ -1,3 +1,4 @@
+
 -- 기존 포트폴리오에 갤러리 이미지 추가 (image_urls 채우기)
 update public.portfolios
 set image_urls = jsonb_build_array(

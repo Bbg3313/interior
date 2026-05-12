@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
-import { TrendingUp, DollarSign, Phone, Mail, MapPin, Clock, MoreVertical, Plus, Send, Sparkles, AlertCircle, X, Image as ImageIcon, LogOut, Pencil, ChevronUp, ChevronDown, Trash2 } from "lucide-react";
+import { TrendingUp, DollarSign, Phone, Mail, MapPin, Clock, MoreVertical, Plus, Send, Sparkles, AlertCircle, X, Image as ImageIcon, LogOut, Pencil, ChevronUp, ChevronDown, Trash2, ClipboardList } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { getLeads, getPortfolios, createPortfolio, updatePortfolio, getHeroImageSlides, setHeroImageSlides, uploadPortfolioImages } from "../../lib/api";
 import { PORTFOLIO_INDUSTRY_OPTIONS } from "../../lib/portfolioIndustries";
@@ -24,6 +24,8 @@ function emptyNewPortfolioForm() {
     duration: "",
     imageUrl: "",
     imageUrlsText: "",
+    remarkTitle: "",
+    remarkBody: "",
   };
 }
 
@@ -198,6 +200,8 @@ export function AdminPage() {
       duration: p.duration,
       imageUrl: p.imageUrl,
       imageUrlsText: galleryUrlsTextFromPortfolio(p),
+      remarkTitle: p.remarkTitle ?? "",
+      remarkBody: p.remarkBody ?? "",
     });
     setCoverFile(null);
     setGalleryFiles([]);
@@ -242,6 +246,8 @@ export function AdminPage() {
           duration: newPortfolio.duration,
           imageUrl: finalImageUrl,
           imageUrls: mergedExtraUrls,
+          remarkTitle: newPortfolio.remarkTitle,
+          remarkBody: newPortfolio.remarkBody,
         });
         setPortfolios((prev) => prev.map((x) => (x.id === updated.id ? updated : x)));
         closePortfolioModal();
@@ -257,6 +263,8 @@ export function AdminPage() {
           duration: newPortfolio.duration,
           imageUrl: finalImageUrl,
           imageUrls: mergedExtraUrls,
+          remarkTitle: newPortfolio.remarkTitle,
+          remarkBody: newPortfolio.remarkBody,
         });
         setPortfolios((prev) => [created, ...prev]);
         closePortfolioModal();
@@ -917,6 +925,36 @@ export function AdminPage() {
                   placeholder="예: 3주"
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:border-black focus:outline-none transition-colors"
                 />
+              </div>
+
+              <div className="rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50/50 p-5 space-y-4">
+                <div className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                  <ClipboardList className="w-4 h-4 shrink-0" aria-hidden />
+                  상세 페이지 비고 (선택)
+                </div>
+                <p className="text-xs text-gray-500 -mt-1">
+                  포트폴리오 상세 맨 아래에 제목·내용 블록으로 표시됩니다. 둘 다 비우면 표시하지 않습니다.
+                </p>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1.5">비고 제목</label>
+                  <input
+                    type="text"
+                    value={newPortfolio.remarkTitle}
+                    onChange={(e) => setNewPortfolio({ ...newPortfolio, remarkTitle: e.target.value })}
+                    placeholder="예: 비고, 현장 메모, 특이사항"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:border-black focus:outline-none transition-colors bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1.5">비고 내용</label>
+                  <textarea
+                    value={newPortfolio.remarkBody}
+                    onChange={(e) => setNewPortfolio({ ...newPortfolio, remarkBody: e.target.value })}
+                    placeholder="상세 설명을 입력하세요."
+                    rows={5}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:border-black focus:outline-none transition-colors resize-y bg-white"
+                  />
+                </div>
               </div>
 
               <div>

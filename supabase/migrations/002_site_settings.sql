@@ -1,3 +1,4 @@
+
 -- 사이트 설정 (키-값, Hero 이미지 등)
 create table if not exists public.site_settings (
   key text primary key,

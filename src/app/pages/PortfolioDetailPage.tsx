@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useParams } from "react-router";
-import { MapPin, Ruler, Banknote, Tag, ArrowLeft, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, Ruler, Banknote, Tag, ArrowLeft, X, ChevronLeft, ChevronRight, ClipboardList } from "lucide-react";
 import { getPortfolio } from "../../lib/api";
 import { formatPortfolioBudgetDisplay } from "../../lib/formatPortfolioBudget";
 
@@ -179,6 +179,30 @@ export function PortfolioDetailPage() {
                 </div>
               </div>
             </div>
+
+            {(portfolio.remarkTitle?.trim() || portfolio.remarkBody?.trim()) && (
+              <div className="mt-8 flex items-start gap-4 p-5 md:p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                <div className="w-12 h-12 rounded-xl bg-white border border-gray-200 flex items-center justify-center shrink-0">
+                  <ClipboardList className="w-6 h-6 text-gray-700" aria-hidden />
+                </div>
+                <div className="min-w-0 flex-1">
+                  {portfolio.remarkBody?.trim() ? (
+                    <>
+                      <h2 className="text-sm font-medium text-gray-500 mb-2 tracking-wide">
+                        {portfolio.remarkTitle?.trim() || "비고"}
+                      </h2>
+                      <div className="text-base md:text-lg text-gray-900 leading-relaxed whitespace-pre-wrap">
+                        {portfolio.remarkBody.trim()}
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-lg md:text-xl font-semibold text-black leading-snug">
+                      {portfolio.remarkTitle?.trim()}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </article>
       </div>

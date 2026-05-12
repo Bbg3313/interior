@@ -5,6 +5,8 @@ import { PortfolioPage } from "./pages/PortfolioPage";
 import { PortfolioDetailPage } from "./pages/PortfolioDetailPage";
 import { EstimatePage } from "./pages/EstimatePage";
 import { AdminPage } from "./pages/AdminPage";
+import { PrivacyPolicyPage } from "./pages/PrivacyPolicyPage";
+import { TermsOfServicePage } from "./pages/TermsOfServicePage";
 
 export const router = createBrowserRouter([
   {
@@ -15,6 +17,8 @@ export const router = createBrowserRouter([
       { path: "portfolio", Component: PortfolioPage },
       { path: "portfolio/:id", Component: PortfolioDetailPage },
       { path: "estimate", Component: EstimatePage },
+      { path: "privacy", Component: PrivacyPolicyPage },
+      { path: "terms", Component: TermsOfServicePage },
       { path: "admin", Component: AdminPage },
     ],
   },

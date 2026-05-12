@@ -44,28 +44,20 @@ export function MainLayout() {
           <div className="flex h-[4.25rem] sm:h-[4.5rem] items-center justify-between gap-6">
             <Link
               to="/"
-              className={`group flex min-w-0 items-center gap-3 sm:gap-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded-sm ${
+              className={`group flex min-w-0 shrink-0 items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded-sm ${
                 isAdmin ? "focus-visible:ring-white/30" : "focus-visible:ring-amber-900/25"
               }`}
             >
               <img
-                src="/soulin-nav-mark.svg"
-                alt="Soulin — 설린 우드팩토리"
-                width={232}
-                height={40}
+                src="/soulin-nav-logo.png?v=3"
+                alt="Soulin woodwork — 설린 우드팩토리"
+                width={292}
+                height={123}
                 decoding="async"
-                className={`h-8 sm:h-9 w-auto max-w-[min(200px,58vw)] shrink-0 object-left object-contain transition-opacity duration-200 ${
-                  isAdmin ? "opacity-[0.92] [filter:brightness(1.15)_contrast(1.05)]" : "opacity-[0.97] group-hover:opacity-100"
+                className={`h-9 sm:h-10 w-auto max-w-[min(260px,62vw)] object-contain object-left transition-opacity duration-200 ${
+                  isAdmin ? "opacity-95 brightness-110 contrast-[1.03]" : "opacity-[0.98] group-hover:opacity-100"
                 }`}
               />
-              {!isAdmin && (
-                <div className="hidden min-[380px]:flex flex-col justify-center border-l border-stone-200/90 pl-3 sm:pl-4">
-                  <span className="text-[9px] font-semibold tracking-[0.35em] text-stone-500 leading-none">건축</span>
-                  <span className="mt-1 text-[9px] font-semibold tracking-[0.28em] text-stone-400 leading-none">
-                    인테리어
-                  </span>
-                </div>
-              )}
               <span className="sr-only">설린 우드팩토리 홈으로 이동</span>
             </Link>
 

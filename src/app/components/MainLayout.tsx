@@ -42,12 +42,20 @@ export function MainLayout() {
         )}
 
         <nav className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
-          <div className="flex h-[4.75rem] sm:h-[5.25rem] items-center justify-between gap-3 sm:gap-5">
+          <div
+            className={
+              isAdmin
+                ? "flex h-[4.75rem] sm:h-[5.25rem] items-center justify-between gap-3 sm:gap-5"
+                : "flex min-h-[5.25rem] items-center justify-between gap-3 py-2 sm:min-h-[5.35rem] sm:gap-5 sm:py-2.5 md:h-[5.25rem] md:min-h-0 md:py-0"
+            }
+          >
             <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 md:gap-4">
             <Link
               to="/"
-              className={`group flex shrink-0 items-center gap-2.5 sm:gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded-sm ${
-                isAdmin ? "focus-visible:ring-white/30" : "focus-visible:ring-amber-900/25"
+              className={`group flex min-w-0 shrink-0 items-center gap-2 sm:gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded-sm ${
+                isAdmin
+                  ? "focus-visible:ring-white/30"
+                  : "flex-1 focus-visible:ring-amber-900/25 md:flex-none"
               }`}
             >
               <img
@@ -56,16 +64,19 @@ export function MainLayout() {
                 width={292}
                 height={123}
                 decoding="async"
-                className={`h-9 w-auto max-w-[min(180px,42vw)] object-contain object-left transition-opacity duration-200 sm:h-10 sm:max-w-[min(220px,50vw)] md:h-11 md:max-w-[min(260px,58vw)] lg:h-12 lg:max-w-[min(300px,72vw)] ${
+                className={`h-9 w-auto max-w-[min(120px,28vw)] shrink-0 object-contain object-left transition-opacity duration-200 sm:h-10 sm:max-w-[min(160px,36vw)] md:h-11 md:max-w-[min(260px,58vw)] lg:h-12 lg:max-w-[min(300px,72vw)] ${
                   isAdmin ? "opacity-95 brightness-110 contrast-[1.03]" : "opacity-[0.98] group-hover:opacity-100"
                 }`}
               />
               {!isAdmin && (
-                <span className="font-brand-kr flex flex-col justify-center border-l border-stone-200/85 pl-2 sm:pl-3 shrink min-w-0">
-                  <span className="whitespace-nowrap text-[11px] font-semibold leading-tight tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-stone-800 via-stone-700 to-amber-900/90 sm:text-sm md:text-base lg:text-lg">
+                <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5 border-l border-stone-200/85 pl-2 sm:pl-3 md:flex-none md:gap-0">
+                  <span className="font-brand-kr whitespace-nowrap text-[11px] font-semibold leading-tight tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-stone-800 via-stone-700 to-amber-900/90 sm:text-sm md:text-base lg:text-lg">
                     설린 우드팩토리
                   </span>
-                </span>
+                  <p className="text-[9px] font-normal leading-snug tracking-[0.02em] text-stone-500 [overflow-wrap:anywhere] sm:text-[10px] md:hidden">
+                    {SITE_BRANDING.headerTagline}
+                  </p>
+                </div>
               )}
               <span className="sr-only">설린 우드팩토리 홈으로 이동</span>
             </Link>
@@ -73,10 +84,10 @@ export function MainLayout() {
             {!isAdmin && (
               <>
                 <span
-                  className="hidden h-7 w-px shrink-0 bg-gradient-to-b from-transparent via-stone-300/90 to-transparent sm:block"
+                  className="hidden h-7 w-px shrink-0 bg-gradient-to-b from-transparent via-stone-300/90 to-transparent md:block"
                   aria-hidden
                 />
-                <p className="min-w-0 flex-1 truncate text-[10px] font-medium tracking-[0.07em] text-stone-600 sm:text-[11px] md:text-xs md:tracking-[0.06em]">
+                <p className="hidden min-w-0 flex-1 truncate text-xs font-medium tracking-[0.06em] text-stone-600 md:block">
                   {SITE_BRANDING.headerTagline}
                 </p>
               </>
@@ -165,7 +176,7 @@ export function MainLayout() {
         </nav>
       </header>
 
-      <main className={isAdmin ? "pt-[4.75rem] sm:pt-[5.25rem]" : "pt-[calc(2px+4.75rem)] sm:pt-[calc(2px+5.25rem)]"}>
+      <main className={isAdmin ? "pt-[4.75rem] sm:pt-[5.25rem]" : "pt-[calc(2px+6.25rem)] sm:pt-[calc(2px+6.35rem)] md:pt-[calc(2px+5.25rem)]"}>
         <Outlet />
       </main>
       {!isAdmin && <SiteFooter />}

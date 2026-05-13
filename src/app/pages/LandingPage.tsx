@@ -98,7 +98,7 @@ export function LandingPage() {
     if (heroSlides.length <= 1) return;
     const t = window.setInterval(() => {
       setHeroActiveIndex((i) => (i + 1) % heroSlides.length);
-    }, 8000);
+    }, 4000);
     return () => window.clearInterval(t);
   }, [heroSlides.length, heroAutoplayKey]);
 

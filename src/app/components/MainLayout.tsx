@@ -43,23 +43,30 @@ export function MainLayout() {
 
         <nav className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
           <div className="flex h-[4.75rem] sm:h-[5.25rem] items-center justify-between gap-3 sm:gap-5">
-            <div className="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-4">
+            <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 md:gap-4">
             <Link
               to="/"
-              className={`group flex shrink-0 items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded-sm ${
+              className={`group flex shrink-0 items-center gap-2.5 sm:gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded-sm ${
                 isAdmin ? "focus-visible:ring-white/30" : "focus-visible:ring-amber-900/25"
               }`}
             >
               <img
                 src="/soulin-nav-logo.png?v=3"
-                alt="Soulin woodwork — 설린 우드팩토리"
+                alt="설린 우드팩토리 로고"
                 width={292}
                 height={123}
                 decoding="async"
-                className={`h-9 w-auto max-w-[min(200px,46vw)] object-contain object-left transition-opacity duration-200 sm:h-11 sm:max-w-[min(260px,58vw)] md:h-12 md:max-w-[min(300px,72vw)] ${
+                className={`h-9 w-auto max-w-[min(180px,42vw)] object-contain object-left transition-opacity duration-200 sm:h-10 sm:max-w-[min(220px,50vw)] md:h-11 md:max-w-[min(260px,58vw)] lg:h-12 lg:max-w-[min(300px,72vw)] ${
                   isAdmin ? "opacity-95 brightness-110 contrast-[1.03]" : "opacity-[0.98] group-hover:opacity-100"
                 }`}
               />
+              {!isAdmin && (
+                <span className="font-brand-kr flex flex-col justify-center border-l border-stone-200/85 pl-2 sm:pl-3 shrink min-w-0">
+                  <span className="whitespace-nowrap text-[11px] font-semibold leading-tight tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-stone-800 via-stone-700 to-amber-900/90 sm:text-sm md:text-base lg:text-lg">
+                    설린 우드팩토리
+                  </span>
+                </span>
+              )}
               <span className="sr-only">설린 우드팩토리 홈으로 이동</span>
             </Link>
 
@@ -120,7 +127,10 @@ export function MainLayout() {
             >
               {!isAdmin && (
                 <div className="px-4 pt-3 pb-3.5 border-b border-stone-200/70 bg-stone-50/40">
-                  <p className="text-[11px] font-medium tracking-[0.07em] text-stone-600 leading-relaxed">
+                  <p className="font-brand-kr text-base font-semibold leading-tight tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-stone-800 via-stone-700 to-amber-900/90">
+                    설린 우드팩토리
+                  </p>
+                  <p className="mt-2 text-[11px] font-medium tracking-[0.07em] text-stone-600 leading-relaxed">
                     {SITE_BRANDING.headerTagline}
                   </p>
                 </div>

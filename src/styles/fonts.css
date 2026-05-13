@@ -1,0 +1,4 @@
+/* 로고 옆 한글 워드마크 — index.html Noto Serif KR 로드 */
+.font-brand-kr {
+  font-family: "Noto Serif KR", "Apple SD Gothic Neo", "Malgun Gothic", serif;
+}

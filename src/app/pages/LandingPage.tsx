@@ -17,7 +17,8 @@ export function LandingPage() {
 
   const [portfolioProjects, setPortfolioProjects] = useState<PortfolioCardProject[]>([]);
   const [reviews, setReviews] = useState<Review[]>(defaultReviews);
-  const [heroSlides, setHeroSlides] = useState<string[]>([defaultHeroUrl]);
+  /** fetch 전에는 빈 배열 → `bg-neutral-100`만 보임. 설정된 URL이 오면 교체, 없으면 아래에서 기본 1장 */
+  const [heroSlides, setHeroSlides] = useState<string[]>([]);
   const [heroActiveIndex, setHeroActiveIndex] = useState(0);
   /** 수동으로 슬라이드를 바꾸면 자동 재생 타이머를 다시 맞추기 위한 키 */
   const [heroAutoplayKey, setHeroAutoplayKey] = useState(0);
@@ -65,9 +66,10 @@ export function LandingPage() {
         }
 
         if (hRes.status === "fulfilled") {
-          if (hRes.value.length > 0) setHeroSlides(hRes.value);
+          setHeroSlides(hRes.value.length > 0 ? hRes.value : [defaultHeroUrl]);
         } else {
           console.error("[LandingPage] hero slides:", hRes.reason);
+          setHeroSlides([defaultHeroUrl]);
         }
       } catch (e) {
         console.error("[LandingPage]", e);

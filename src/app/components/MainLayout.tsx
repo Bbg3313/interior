@@ -46,7 +46,7 @@ export function MainLayout() {
             className={
               isAdmin
                 ? "flex h-[4.75rem] sm:h-[5.25rem] items-center justify-between gap-3 sm:gap-5"
-                : "flex min-h-[5.25rem] items-center justify-between gap-3 py-2 sm:min-h-[5.35rem] sm:gap-5 sm:py-2.5 md:h-[5.25rem] md:min-h-0 md:py-0"
+                : "flex h-[6rem] items-center justify-between gap-3 md:h-[5.25rem] md:gap-5"
             }
           >
             <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 md:gap-4">
@@ -73,7 +73,7 @@ export function MainLayout() {
                   <span className="font-brand-kr whitespace-nowrap text-[11px] font-semibold leading-tight tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-stone-800 via-stone-700 to-amber-900/90 sm:text-sm md:text-base lg:text-lg">
                     설린 우드팩토리
                   </span>
-                  <p className="text-[9px] font-normal leading-snug tracking-[0.02em] text-stone-500 [overflow-wrap:anywhere] sm:text-[10px] md:hidden">
+                  <p className="line-clamp-1 text-[9px] font-normal leading-snug tracking-[0.02em] text-stone-500 sm:text-[10px] md:hidden">
                     {SITE_BRANDING.headerTagline}
                   </p>
                 </div>
@@ -176,7 +176,7 @@ export function MainLayout() {
         </nav>
       </header>
 
-      <main className={isAdmin ? "pt-[4.75rem] sm:pt-[5.25rem]" : "pt-[calc(2px+6.25rem)] sm:pt-[calc(2px+6.35rem)] md:pt-[calc(2px+5.25rem)]"}>
+      <main className={isAdmin ? "pt-[4.75rem] sm:pt-[5.25rem]" : "pt-[calc(2px+6rem)] md:pt-[calc(2px+5.25rem)]"}>
         <Outlet />
       </main>
       {!isAdmin && <SiteFooter />}

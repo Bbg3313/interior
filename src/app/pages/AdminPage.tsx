@@ -2,7 +2,16 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { TrendingUp, DollarSign, Phone, Mail, MapPin, Clock, MoreVertical, Plus, Send, Sparkles, AlertCircle, X, Image as ImageIcon, LogOut, Pencil, ChevronUp, ChevronDown, Trash2, ClipboardList } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { getLeads, getPortfolios, createPortfolio, updatePortfolio, getHeroImageSlides, setHeroImageSlides, uploadPortfolioImages } from "../../lib/api";
+import {
+  getLeads,
+  getPortfolios,
+  createPortfolio,
+  updatePortfolio,
+  getHeroImageSlides,
+  setHeroImageSlides,
+  uploadPortfolioImages,
+  formatSupabaseError,
+} from "../../lib/api";
 import { PORTFOLIO_INDUSTRY_OPTIONS } from "../../lib/portfolioIndustries";
 import { isAdminLoggedIn, setAdminLoggedIn, clearAdminSession, checkAdminCredentials } from "../../lib/adminAuth";
 import type { Lead, Portfolio } from "../../types";
@@ -272,7 +281,7 @@ export function AdminPage() {
       }
     } catch (err) {
       console.error(err);
-      alert("저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+      alert(`저장 중 오류: ${formatSupabaseError(err)}`);
     } finally {
       setPortfolioSaving(false);
     }

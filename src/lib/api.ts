@@ -3,6 +3,36 @@ import type { Lead, Portfolio, Review, CreateLeadInput, CreatePortfolioInput, Up
 
 const PORTFOLIO_BUCKET = "portfolio-images";
 
+/** Supabase/PostgREST/Storage 오류를 사용자·로그용 문자열로 */
+export function formatSupabaseError(err: unknown): string {
+  if (err == null) return "알 수 없는 오류";
+  if (typeof err === "object" && err !== null && "message" in err) {
+    const msg = typeof (err as { message: unknown }).message === "string" ? (err as { message: string }).message : "";
+    const details =
+      "details" in err && typeof (err as { details: unknown }).details === "string"
+        ? (err as { details: string }).details.trim()
+        : "";
+    const hint =
+      "hint" in err && typeof (err as { hint: unknown }).hint === "string" ? (err as { hint: string }).hint.trim() : "";
+    const code = "code" in err && typeof (err as { code: unknown }).code === "string" ? (err as { code: string }).code : "";
+    const parts = [msg, details && `(${details})`, hint && `[힌트: ${hint}]`, code && `[${code}]`].filter(Boolean);
+    let out = parts.join(" ").trim() || String(err);
+
+    const lower = out.toLowerCase();
+    if (lower.includes("row-level security") || lower.includes("rls") || lower.includes("violates")) {
+      out +=
+        " — 이미지 업로드가 막혀 있을 수 있습니다. Supabase SQL Editor에서 supabase/migrations/005_storage_portfolio_images_policies.sql 을 실행하고, Storage에 버킷 portfolio-images 가 있는지 확인하세요.";
+    }
+    if (lower.includes("could not find") && (lower.includes("image_urls") || lower.includes("remark_"))) {
+      out +=
+        " — DB에 포트폴리오 확장 컬럼이 없습니다. supabase/migrations/007_portfolio_extras_baseline.sql (또는 003·006)을 Supabase에서 실행하세요.";
+    }
+    return out;
+  }
+  if (err instanceof Error) return err.message;
+  return String(err);
+}
+
 // --- Leads ---
 
 function rowToLead(row: Record<string, unknown>): Lead {
@@ -148,49 +178,44 @@ export function prefetchPortfolioDetail(id: number): void {
 
 export async function createPortfolio(input: CreatePortfolioInput): Promise<Portfolio> {
   assertSupabaseConfigured();
-  const allUrls = [input.imageUrl, ...(input.imageUrls ?? [])].filter(Boolean);
-  const { data, error } = await supabase
-    .from("portfolios")
-    .insert({
-      name: input.name,
-      location: input.location,
-      area: input.area,
-      budget: input.budget,
-      industry: input.industry,
-      style: input.style,
-      duration: input.duration,
-      image_url: input.imageUrl,
-      image_urls: allUrls,
-      remark_title: input.remarkTitle?.trim() ?? "",
-      remark_body: input.remarkBody?.trim() ?? "",
-    })
-    .select()
-    .single();
+  const imageUrl = String(input.imageUrl ?? "").trim();
+  const allUrls = [imageUrl, ...(input.imageUrls ?? [])].filter((u): u is string => typeof u === "string" && u.trim().length > 0);
+  const row = {
+    name: String(input.name ?? "").trim(),
+    location: String(input.location ?? "").trim(),
+    area: String(input.area ?? "").trim(),
+    budget: String(input.budget ?? "").trim(),
+    industry: String(input.industry ?? "").trim(),
+    style: String(input.style ?? "").trim(),
+    duration: String(input.duration ?? "").trim(),
+    image_url: imageUrl,
+    image_urls: allUrls,
+    remark_title: String(input.remarkTitle ?? "").trim(),
+    remark_body: String(input.remarkBody ?? "").trim(),
+  };
+  const { data, error } = await supabase.from("portfolios").insert(row).select().single();
   if (error) throw error;
   return rowToPortfolio(data as Record<string, unknown>);
 }
 
 export async function updatePortfolio(input: UpdatePortfolioInput): Promise<Portfolio> {
   assertSupabaseConfigured();
-  const allUrls = [input.imageUrl, ...(input.imageUrls ?? [])].filter(Boolean);
-  const { data, error } = await supabase
-    .from("portfolios")
-    .update({
-      name: input.name,
-      location: input.location,
-      area: input.area,
-      budget: input.budget,
-      industry: input.industry,
-      style: input.style,
-      duration: input.duration,
-      image_url: input.imageUrl,
-      image_urls: allUrls,
-      remark_title: input.remarkTitle?.trim() ?? "",
-      remark_body: input.remarkBody?.trim() ?? "",
-    })
-    .eq("id", input.id)
-    .select()
-    .single();
+  const imageUrl = String(input.imageUrl ?? "").trim();
+  const allUrls = [imageUrl, ...(input.imageUrls ?? [])].filter((u): u is string => typeof u === "string" && u.trim().length > 0);
+  const row = {
+    name: String(input.name ?? "").trim(),
+    location: String(input.location ?? "").trim(),
+    area: String(input.area ?? "").trim(),
+    budget: String(input.budget ?? "").trim(),
+    industry: String(input.industry ?? "").trim(),
+    style: String(input.style ?? "").trim(),
+    duration: String(input.duration ?? "").trim(),
+    image_url: imageUrl,
+    image_urls: allUrls,
+    remark_title: String(input.remarkTitle ?? "").trim(),
+    remark_body: String(input.remarkBody ?? "").trim(),
+  };
+  const { data, error } = await supabase.from("portfolios").update(row).eq("id", input.id).select().single();
   if (error) throw error;
   portfolioDetailCache.delete(input.id);
   return rowToPortfolio(data as Record<string, unknown>);
@@ -203,7 +228,11 @@ export async function uploadPortfolioImages(files: File[], storageSubfolder = "p
 
   for (const file of files) {
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}-${safeName}`;
+    const unique =
+      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const path = `${folder}/${unique}-${safeName}`;
 
     const { error: uploadError } = await supabase.storage
       .from(PORTFOLIO_BUCKET)

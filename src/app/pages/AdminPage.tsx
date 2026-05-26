@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { Link } from "react-router";
 import { TrendingUp, DollarSign, Phone, Mail, MapPin, Clock, MoreVertical, Plus, Send, Sparkles, AlertCircle, X, Image as ImageIcon, LogOut, Pencil, ChevronUp, ChevronDown, Trash2, ClipboardList } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
@@ -14,7 +14,9 @@ import {
 } from "../../lib/api";
 import { PORTFOLIO_INDUSTRY_OPTIONS } from "../../lib/portfolioIndustries";
 import { isAdminLoggedIn, setAdminLoggedIn, clearAdminSession, checkAdminCredentials } from "../../lib/adminAuth";
-import type { Lead, Portfolio } from "../../types";
+import type { Lead, LeadStatus, Portfolio } from "../../types";
+
+type AdminStatAction = "filter-new" | "filter-progress" | "scroll-portfolios" | "scroll-chart";
 
 function galleryUrlsTextFromPortfolio(p: Portfolio): string {
   const urls = p.imageUrls ?? [];
@@ -58,6 +60,14 @@ export function AdminPage() {
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [newPortfolio, setNewPortfolio] = useState(() => emptyNewPortfolioForm());
+  const [leadFilter, setLeadFilter] = useState<LeadStatus | null>(null);
+  const leadsSectionRef = useRef<HTMLDivElement>(null);
+  const portfoliosSectionRef = useRef<HTMLDivElement>(null);
+  const chartSectionRef = useRef<HTMLDivElement>(null);
+
+  const scrollToSection = useCallback((ref: React.RefObject<HTMLDivElement | null>) => {
+    ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
 
   useEffect(() => {
     setIsAuthenticated(isAdminLoggedIn());
@@ -131,40 +141,79 @@ export function AdminPage() {
     { month: "2월", inquiries: 15 },
   ];
 
-  const stats = [
-    {
-      title: "신규 문의",
-      value: "8",
-      subtext: "오늘",
-      icon: AlertCircle,
-      color: "bg-gradient-to-br from-red-500 to-red-600",
-      badge: true,
-    },
-    {
-      title: "견적 대기",
-      value: "12",
-      subtext: "처리 필요",
-      icon: Clock,
-      color: "bg-gradient-to-br from-yellow-500 to-amber-500",
-      badge: false,
-    },
-    {
-      title: "진행중 프로젝트",
-      value: "23",
-      subtext: "시공중",
-      icon: TrendingUp,
-      color: "bg-gradient-to-br from-blue-500 to-blue-600",
-      badge: false,
-    },
-    {
-      title: "이달 매출",
-      value: "4.2억",
-      subtext: "+18% vs 지난달",
-      icon: DollarSign,
-      color: "bg-gradient-to-br from-green-500 to-emerald-600",
-      badge: false,
-    },
-  ];
+  const stats = useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    const newCount = leads.filter((l) => l.status === "신규").length;
+    const todayCount = leads.filter((l) => l.date === today).length;
+    const progressCount = leads.filter((l) => l.status === "진행중").length;
+    const portfolioCount = portfolios.length;
+    const contractCount = leads.filter((l) => l.status === "계약완료").length;
+
+    return [
+      {
+        title: "신규 문의",
+        value: String(newCount),
+        subtext: todayCount > 0 ? `오늘 ${todayCount}건` : "탭하여 목록 보기",
+        icon: AlertCircle,
+        color: "bg-gradient-to-br from-red-500 to-red-600",
+        badge: newCount > 0,
+        action: "filter-new" as AdminStatAction,
+      },
+      {
+        title: "견적 대기",
+        value: String(progressCount),
+        subtext: "진행중 문의 · 탭하여 보기",
+        icon: Clock,
+        color: "bg-gradient-to-br from-yellow-500 to-amber-500",
+        badge: progressCount > 0,
+        action: "filter-progress" as AdminStatAction,
+      },
+      {
+        title: "진행중 프로젝트",
+        value: String(portfolioCount),
+        subtext: "등록 포트폴리오 · 탭하여 보기",
+        icon: TrendingUp,
+        color: "bg-gradient-to-br from-blue-500 to-blue-600",
+        badge: false,
+        action: "scroll-portfolios" as AdminStatAction,
+      },
+      {
+        title: "계약 완료",
+        value: String(contractCount),
+        subtext: "문의 기준 · 탭하여 추이 보기",
+        icon: DollarSign,
+        color: "bg-gradient-to-br from-green-500 to-emerald-600",
+        badge: false,
+        action: "scroll-chart" as AdminStatAction,
+      },
+    ];
+  }, [leads, portfolios]);
+
+  const displayedLeads = useMemo(
+    () => (leadFilter ? leads.filter((l) => l.status === leadFilter) : leads),
+    [leads, leadFilter]
+  );
+
+  const handleStatCardClick = (action: AdminStatAction) => {
+    switch (action) {
+      case "filter-new":
+        setLeadFilter("신규");
+        scrollToSection(leadsSectionRef);
+        break;
+      case "filter-progress":
+        setLeadFilter("진행중");
+        scrollToSection(leadsSectionRef);
+        break;
+      case "scroll-portfolios":
+        setLeadFilter(null);
+        scrollToSection(portfoliosSectionRef);
+        break;
+      case "scroll-chart":
+        setLeadFilter(null);
+        scrollToSection(chartSectionRef);
+        break;
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -357,24 +406,32 @@ export function AdminPage() {
           </button>
         </div>
 
-        {/* Stats Cards */}
+        {/* Stats Cards — 모바일 탭 가능한 버튼 */}
         <div className="grid grid-cols-2 gap-4 md:gap-6 mb-12">
           {stats.map((stat, index) => (
-            <div key={index} className="relative bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8 hover:shadow-xl transition-all group overflow-hidden">
+            <button
+              key={index}
+              type="button"
+              onClick={() => handleStatCardClick(stat.action)}
+              className="relative w-full min-h-[9.5rem] sm:min-h-[10.5rem] text-left bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8 hover:shadow-xl hover:border-gray-200 active:scale-[0.98] active:bg-gray-50 transition-all group overflow-hidden touch-manipulation cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black [-webkit-tap-highlight-color:transparent]"
+              aria-label={`${stat.title}: ${stat.value}건, ${stat.subtext}`}
+            >
               {stat.badge && (
-                <div className="absolute top-6 right-6">
+                <div className="absolute top-6 right-6 pointer-events-none" aria-hidden>
                   <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
                 </div>
               )}
-              
-              <div className={`w-12 h-12 md:w-16 md:h-16 rounded-2xl ${stat.color} text-white flex items-center justify-center mb-4 md:mb-6 shadow-lg group-hover:scale-110 transition-transform`}>
+
+              <div
+                className={`w-12 h-12 md:w-16 md:h-16 rounded-2xl ${stat.color} text-white flex items-center justify-center mb-4 md:mb-6 shadow-lg group-hover:scale-110 group-active:scale-105 transition-transform pointer-events-none`}
+              >
                 <stat.icon className="w-6 h-6 md:w-8 md:h-8" />
               </div>
-              
-              <div className="text-3xl md:text-5xl mb-2 font-light">{stat.value}</div>
-              <div className="text-xs md:text-sm text-gray-900 font-medium mb-1">{stat.title}</div>
-              <div className="text-[10px] md:text-xs text-gray-500">{stat.subtext}</div>
-            </div>
+
+              <div className="text-3xl md:text-5xl mb-2 font-light pointer-events-none">{stat.value}</div>
+              <div className="text-xs md:text-sm text-gray-900 font-medium mb-1 pointer-events-none">{stat.title}</div>
+              <div className="text-[10px] md:text-xs text-gray-500 pointer-events-none">{stat.subtext}</div>
+            </button>
           ))}
         </div>
 
@@ -415,7 +472,7 @@ export function AdminPage() {
         </div>
 
         {/* 등록된 포트폴리오 */}
-        <div className="mb-12">
+        <div ref={portfoliosSectionRef} id="admin-portfolios" className="mb-12 scroll-mt-24 sm:scroll-mt-28">
           <h2 className="text-xl font-semibold mb-4">등록된 포트폴리오</h2>
           {!loading && portfolios.length === 0 && (
             <p className="text-gray-500 text-sm">등록된 항목이 없습니다. 빠른 작업에서 추가하세요.</p>
@@ -465,11 +522,28 @@ export function AdminPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Recent Inquiries Table */}
-          <div className="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+          <div
+            ref={leadsSectionRef}
+            id="admin-leads"
+            className="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden scroll-mt-24 sm:scroll-mt-28"
+          >
             <div className="p-8 border-b border-gray-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div>
                 <h2 className="text-2xl mb-2">최근 문의 내역</h2>
-                <p className="text-sm text-gray-600">총 {leads.length}건의 문의</p>
+                <p className="text-sm text-gray-600">
+                  {leadFilter
+                    ? `${leadFilter} ${displayedLeads.length}건 · 전체 ${leads.length}건`
+                    : `총 ${leads.length}건의 문의`}
+                </p>
+                {leadFilter && (
+                  <button
+                    type="button"
+                    onClick={() => setLeadFilter(null)}
+                    className="mt-2 text-xs font-medium text-gray-700 underline underline-offset-2 touch-manipulation"
+                  >
+                    필터 해제
+                  </button>
+                )}
               </div>
               <button className="flex items-center gap-2 px-6 py-3 bg-black text-white rounded-full hover:bg-gray-900 transition-all shadow-lg hover:shadow-xl hover:scale-105">
                 <Plus className="w-4 h-4" />
@@ -509,7 +583,14 @@ export function AdminPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {leads.map((lead) => (
+                  {displayedLeads.length === 0 && !loading && (
+                    <tr>
+                      <td colSpan={8} className="px-6 py-12 text-center text-sm text-gray-500">
+                        {leadFilter ? `"${leadFilter}" 상태의 문의가 없습니다.` : "등록된 문의가 없습니다."}
+                      </td>
+                    </tr>
+                  )}
+                  {displayedLeads.map((lead) => (
                     <tr key={lead.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-5 whitespace-nowrap">
                         <div className="font-semibold text-gray-900">{lead.clientName}</div>
@@ -553,7 +634,11 @@ export function AdminPage() {
           {/* Right Sidebar */}
           <div className="space-y-6">
             {/* Monthly Trend Chart */}
-            <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
+            <div
+              ref={chartSectionRef}
+              id="admin-chart"
+              className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 scroll-mt-24 sm:scroll-mt-28"
+            >
               <h3 className="text-xl mb-6 font-semibold">월별 문의 추이</h3>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={monthlyData}>

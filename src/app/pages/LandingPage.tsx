@@ -258,33 +258,33 @@ export function LandingPage() {
       <section className="py-32 px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-full border border-blue-200 mb-6">
-              <Sparkles className="w-4 h-4 text-blue-600" />
-              <span className="text-sm text-blue-900 font-medium">간편한 프로세스</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 rounded-full border border-amber-200/80 mb-6">
+              <Sparkles className="w-4 h-4 text-amber-800" />
+              <span className="text-sm text-amber-950 font-medium">간편한 프로세스</span>
             </div>
             <h2 className={`mb-6 ${SECTION_TITLE_CLASS}`}>
               상담부터 완공까지,<br className="hidden sm:block" />
               투명하게 진행합니다
             </h2>
-            <p className="text-xl text-gray-600">체계적인 프로세스로 신뢰할 수 있는 시공을 약속합니다</p>
+            <p className="text-xl text-stone-600">체계적인 프로세스로 신뢰할 수 있는 시공을 약속합니다</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-10 sm:gap-x-6 sm:gap-y-12 md:gap-4 relative">
             {/* Connecting Lines — 데스크톱 가로 프로세스만 */}
-            <div className="hidden md:block absolute top-20 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-200 via-blue-300 to-blue-200 mx-[10%]" />
+            <div className="hidden md:block absolute top-20 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-200/40 via-stone-300/70 to-amber-200/40 mx-[10%]" />
             
             {/* Step 1 */}
             <div className="relative text-center group">
               <div className="relative inline-flex items-center justify-center w-32 h-32 md:w-40 md:h-40 mb-8 mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-blue-100 rounded-3xl group-hover:scale-110 transition-transform duration-500" />
-                <div className="absolute inset-2 bg-white rounded-3xl shadow-sm" />
-                <FileText className="relative w-12 h-12 md:w-16 md:h-16 text-blue-600 group-hover:scale-110 transition-transform" />
-                <div className="absolute -top-4 -right-4 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold shadow-lg">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#f5f0e8] to-amber-100/90 rounded-3xl ring-1 ring-amber-900/10 group-hover:scale-110 transition-transform duration-500" />
+                <div className="absolute inset-2 bg-[#fcfcfb] rounded-3xl shadow-sm ring-1 ring-stone-200/60" />
+                <FileText className="relative w-12 h-12 md:w-16 md:h-16 text-amber-900 group-hover:scale-110 transition-transform" />
+                <div className="absolute -top-4 -right-4 w-10 h-10 bg-gradient-to-br from-stone-800 to-amber-900 text-white rounded-full flex items-center justify-center font-bold shadow-lg shadow-stone-900/20">
                   1
                 </div>
               </div>
-              <h3 className="text-2xl mb-3 font-semibold">문의</h3>
-              <p className="text-gray-600 leading-relaxed">
+              <h3 className="text-2xl mb-3 font-semibold text-stone-900">문의</h3>
+              <p className="text-stone-600 leading-relaxed">
                 온라인 폼 또는 전화로<br />
                 간편하게 문의하세요
               </p>
@@ -293,15 +293,15 @@ export function LandingPage() {
             {/* Step 2 */}
             <div className="relative text-center group">
               <div className="relative inline-flex items-center justify-center w-32 h-32 md:w-40 md:h-40 mb-8 mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-blue-100 rounded-3xl group-hover:scale-110 transition-transform duration-500" />
-                <div className="absolute inset-2 bg-white rounded-3xl shadow-sm" />
-                <Ruler className="relative w-12 h-12 md:w-16 md:h-16 text-blue-600 group-hover:scale-110 transition-transform" />
-                <div className="absolute -top-4 -right-4 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold shadow-lg">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#f5f0e8] to-amber-100/90 rounded-3xl ring-1 ring-amber-900/10 group-hover:scale-110 transition-transform duration-500" />
+                <div className="absolute inset-2 bg-[#fcfcfb] rounded-3xl shadow-sm ring-1 ring-stone-200/60" />
+                <Ruler className="relative w-12 h-12 md:w-16 md:h-16 text-amber-900 group-hover:scale-110 transition-transform" />
+                <div className="absolute -top-4 -right-4 w-10 h-10 bg-gradient-to-br from-stone-800 to-amber-900 text-white rounded-full flex items-center justify-center font-bold shadow-lg shadow-stone-900/20">
                   2
                 </div>
               </div>
-              <h3 className="text-2xl mb-3 font-semibold">현장 방문</h3>
-              <p className="text-gray-600 leading-relaxed">
+              <h3 className="text-2xl mb-3 font-semibold text-stone-900">현장 방문</h3>
+              <p className="text-stone-600 leading-relaxed">
                 전문가가 방문하여<br />
                 정확한 측정과 상담 진행
               </p>
@@ -310,15 +310,15 @@ export function LandingPage() {
             {/* Step 3 */}
             <div className="relative text-center group">
               <div className="relative inline-flex items-center justify-center w-32 h-32 md:w-40 md:h-40 mb-8 mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-blue-100 rounded-3xl group-hover:scale-110 transition-transform duration-500" />
-                <div className="absolute inset-2 bg-white rounded-3xl shadow-sm" />
-                <HardHat className="relative w-12 h-12 md:w-16 md:h-16 text-blue-600 group-hover:scale-110 transition-transform" />
-                <div className="absolute -top-4 -right-4 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold shadow-lg">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#f5f0e8] to-amber-100/90 rounded-3xl ring-1 ring-amber-900/10 group-hover:scale-110 transition-transform duration-500" />
+                <div className="absolute inset-2 bg-[#fcfcfb] rounded-3xl shadow-sm ring-1 ring-stone-200/60" />
+                <HardHat className="relative w-12 h-12 md:w-16 md:h-16 text-amber-900 group-hover:scale-110 transition-transform" />
+                <div className="absolute -top-4 -right-4 w-10 h-10 bg-gradient-to-br from-stone-800 to-amber-900 text-white rounded-full flex items-center justify-center font-bold shadow-lg shadow-stone-900/20">
                   3
                 </div>
               </div>
-              <h3 className="text-2xl mb-3 font-semibold">시공</h3>
-              <p className="text-gray-600 leading-relaxed">
+              <h3 className="text-2xl mb-3 font-semibold text-stone-900">시공</h3>
+              <p className="text-stone-600 leading-relaxed">
                 숙련된 전문팀이<br />
                 체계적으로 시공 진행
               </p>
@@ -327,15 +327,15 @@ export function LandingPage() {
             {/* Step 4 */}
             <div className="relative text-center group">
               <div className="relative inline-flex items-center justify-center w-32 h-32 md:w-40 md:h-40 mb-8 mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-blue-100 rounded-3xl group-hover:scale-110 transition-transform duration-500" />
-                <div className="absolute inset-2 bg-white rounded-3xl shadow-sm" />
-                <ShieldCheck className="relative w-12 h-12 md:w-16 md:h-16 text-blue-600 group-hover:scale-110 transition-transform" />
-                <div className="absolute -top-4 -right-4 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold shadow-lg">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#f5f0e8] to-amber-100/90 rounded-3xl ring-1 ring-amber-900/10 group-hover:scale-110 transition-transform duration-500" />
+                <div className="absolute inset-2 bg-[#fcfcfb] rounded-3xl shadow-sm ring-1 ring-stone-200/60" />
+                <ShieldCheck className="relative w-12 h-12 md:w-16 md:h-16 text-amber-900 group-hover:scale-110 transition-transform" />
+                <div className="absolute -top-4 -right-4 w-10 h-10 bg-gradient-to-br from-stone-800 to-amber-900 text-white rounded-full flex items-center justify-center font-bold shadow-lg shadow-stone-900/20">
                   4
                 </div>
               </div>
-              <h3 className="text-2xl mb-3 font-semibold">완공 및 케어</h3>
-              <p className="text-gray-600 leading-relaxed">
+              <h3 className="text-2xl mb-3 font-semibold text-stone-900">완공 및 케어</h3>
+              <p className="text-stone-600 leading-relaxed">
                 최종 점검 후<br />
                 지속적인 A/S 제공
               </p>

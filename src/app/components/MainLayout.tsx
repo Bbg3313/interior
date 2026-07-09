@@ -27,7 +27,7 @@ export function MainLayout() {
   return (
     <div className="min-h-screen bg-white">
       <header
-        className={`fixed top-0 left-0 right-0 z-50 ${
+        className={`font-pretendard fixed top-0 left-0 right-0 z-50 ${
           isAdmin
             ? "border-b border-white/[0.06] bg-zinc-950/95 backdrop-blur-md"
             : "border-b border-stone-200/90 bg-[#fcfcfb]/95 backdrop-blur-md shadow-[0_1px_0_0_rgba(255,255,255,0.9)_inset]"
@@ -70,7 +70,7 @@ export function MainLayout() {
               />
               {!isAdmin && (
                 <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5 border-l border-stone-200/85 pl-2 sm:pl-3 md:flex-none md:gap-0">
-                  <span className="font-brand-kr whitespace-nowrap text-[11px] font-semibold leading-tight tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-stone-800 via-stone-700 to-amber-900/90 sm:text-sm md:text-base lg:text-lg">
+                  <span className="whitespace-nowrap text-[11px] font-semibold leading-tight tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-stone-800 via-stone-700 to-amber-900/90 sm:text-sm md:text-base lg:text-lg">
                     설린 우드팩토리
                   </span>
                   <p className="line-clamp-1 text-[9px] font-normal leading-snug tracking-[0.02em] text-stone-500 sm:text-[10px] md:hidden">
@@ -138,7 +138,7 @@ export function MainLayout() {
             >
               {!isAdmin && (
                 <div className="px-4 pt-3 pb-3.5 border-b border-stone-200/70 bg-stone-50/40">
-                  <p className="font-brand-kr text-base font-semibold leading-tight tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-stone-800 via-stone-700 to-amber-900/90">
+                  <p className="text-base font-semibold leading-tight tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-stone-800 via-stone-700 to-amber-900/90">
                     설린 우드팩토리
                   </p>
                   <p className="mt-2 text-[11px] font-medium tracking-[0.07em] text-stone-600 leading-relaxed">

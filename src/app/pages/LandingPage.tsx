@@ -253,6 +253,10 @@ export function LandingPage() {
               <Sparkles className="w-4 h-4 text-blue-600" />
               <span className="text-sm text-blue-900 font-medium">간편한 프로세스</span>
             </div>
+            <h2 className="text-4xl md:text-5xl mb-6 tracking-tight text-black font-semibold">
+              상담부터 완공까지,<br className="hidden sm:block" />
+              투명하게 진행합니다
+            </h2>
             <p className="text-xl text-gray-600">체계적인 프로세스로 신뢰할 수 있는 시공을 약속합니다</p>
           </div>
 
@@ -339,10 +343,14 @@ export function LandingPage() {
             <span className="text-sm text-yellow-900 font-medium">1분이면 충분합니다</span>
           </div>
           
-          <h2 className="text-5xl md:text-7xl mb-8 text-black tracking-tight leading-tight">
-            지금 바로<br />
-            <span className="bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent">무료 견적</span>을<br />
-            받아보세요
+          <h2 className="mx-auto mb-8 max-w-2xl text-3xl font-semibold tracking-tight leading-snug text-black sm:text-4xl md:text-5xl md:leading-tight">
+            <span className="block">지금 바로</span>
+            <span className="mt-1 block sm:mt-2">
+              <span className="bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent">
+                무료 견적
+              </span>
+              을 받아보세요
+            </span>
           </h2>
           
           <p className="text-xl md:text-2xl text-gray-600 mb-10 leading-relaxed">

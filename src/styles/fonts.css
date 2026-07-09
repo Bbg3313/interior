@@ -1,4 +1,5 @@
-/* 로고 옆 한글 워드마크 — index.html Noto Serif KR 로드 */
-.font-brand-kr {
-  font-family: "Noto Serif KR", "Apple SD Gothic Neo", "Malgun Gothic", serif;
+/* 상단 메뉴바 — Pretendard */
+.font-pretendard {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto,
+    "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
 }

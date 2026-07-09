@@ -64,8 +64,8 @@ export function PortfolioPage() {
             <h1 className="text-5xl md:text-6xl lg:text-7xl mb-5 tracking-tight text-stone-900 font-semibold">
               포트폴리오
             </h1>
-            <p className="text-lg md:text-xl text-stone-600 leading-relaxed max-w-xl">
-              성공적인 프로젝트를 확인하고 영감을 얻으세요
+            <p className="text-lg md:text-xl text-stone-600 leading-relaxed max-w-2xl">
+              설린 우드팩토리에서 인테리어 시공한 모습을 생생하게 전해 드립니다. 직접 확인해 보세요.
             </p>
           </div>
         </div>

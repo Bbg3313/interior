@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useSearchParams } from "react-router";
 import { Tag } from "lucide-react";
 import { getPortfolios } from "../../lib/api";
 import { PORTFOLIO_INDUSTRY_OPTIONS } from "../../lib/portfolioIndustries";
@@ -6,11 +7,24 @@ import { SITE_BRANDING } from "../../lib/siteBranding";
 import { PortfolioProjectCard, mapPortfolioToCardProject, type PortfolioCardProject } from "../components/PortfolioProjectCard";
 
 export function PortfolioPage() {
-  const [selectedIndustry, setSelectedIndustry] = useState<string>("전체");
+  const [searchParams] = useSearchParams();
+  const industryFromUrl = searchParams.get("industry");
+  const [selectedIndustry, setSelectedIndustry] = useState<string>(() => {
+    if (industryFromUrl && (PORTFOLIO_INDUSTRY_OPTIONS as readonly string[]).includes(industryFromUrl)) {
+      return industryFromUrl;
+    }
+    return "전체";
+  });
 
   const [visibleCount, setVisibleCount] = useState(6);
   const [portfolioProjects, setPortfolioProjects] = useState<PortfolioCardProject[]>([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (industryFromUrl && (PORTFOLIO_INDUSTRY_OPTIONS as readonly string[]).includes(industryFromUrl)) {
+      setSelectedIndustry(industryFromUrl);
+    }
+  }, [industryFromUrl]);
 
   useEffect(() => {
     getPortfolios()
@@ -39,27 +53,37 @@ export function PortfolioPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-stone-50/80 to-white">
-      {/* Header — architectural studio tone (warm stone, subtle plan grid) */}
-      <div className="relative overflow-hidden border-b border-stone-200/90 bg-gradient-to-br from-[#faf8f4] via-[#f0ebe3] to-[#e5ddd3]">
+      {/* Header — wood workshop hero */}
+      <div className="relative min-h-[22rem] overflow-hidden border-b border-stone-200/90 md:min-h-[26rem]">
+        <img
+          src="/portfolio-hero-woodwork.jpg"
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover object-[72%_center] md:object-[78%_center]"
+          decoding="async"
+        />
         <div
-          className="pointer-events-none absolute inset-0 opacity-[0.45]"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#faf8f4] via-[#f3ede4]/94 to-[#e8dfd3]/35 md:via-[#f0ebe3]/88 md:to-transparent"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_85%_90%_at_0%_50%,rgba(250,248,244,0.97),transparent_68%)]"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.28]"
           aria-hidden
           style={{
-            backgroundImage: `linear-gradient(to right, rgb(120 113 108 / 0.07) 1px, transparent 1px),
-              linear-gradient(to bottom, rgb(120 113 108 / 0.07) 1px, transparent 1px)`,
+            backgroundImage: `linear-gradient(to right, rgb(120 113 108 / 0.08) 1px, transparent 1px),
+              linear-gradient(to bottom, rgb(120 113 108 / 0.08) 1px, transparent 1px)`,
             backgroundSize: "28px 28px",
           }}
         />
-        <div
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_-15%,rgba(146,64,14,0.09),transparent_55%)]"
-          aria-hidden
-        />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-900/25 to-transparent" aria-hidden />
 
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-20 md:py-24">
+        <div className="relative mx-auto max-w-7xl px-6 py-16 md:py-20 lg:px-8 lg:py-24">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-stone-300/70 bg-white/55 backdrop-blur-sm text-stone-700 shadow-sm mb-6">
-              <Tag className="w-4 h-4 text-amber-800/90 shrink-0" aria-hidden />
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-stone-300/70 bg-white/70 px-4 py-2 text-stone-700 shadow-sm backdrop-blur-sm">
+              <Tag className="h-4 w-4 shrink-0 text-amber-800/90" aria-hidden />
               <span className="text-sm font-medium tracking-wide">500+ 완료 프로젝트</span>
             </div>
             <h1 className="mb-5 text-3xl font-semibold tracking-tight leading-snug text-stone-900 sm:text-4xl md:text-5xl md:leading-tight">

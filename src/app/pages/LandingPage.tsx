@@ -6,6 +6,7 @@ import { SITE_BUSINESS } from "../../lib/siteBusinessInfo";
 import { SITE_BRANDING } from "../../lib/siteBranding";
 import type { Review } from "../../types";
 import { PortfolioProjectCard, mapPortfolioToCardProject, type PortfolioCardProject } from "../components/PortfolioProjectCard";
+import { LandingCategoryNav } from "../components/LandingCategoryNav";
 
 const defaultReviews: Review[] = [
   { name: "김민준", business: "카페 운영", rating: 5, comment: "3주 만에 완공되었고, 디자인이 정말 만족스럽습니다. 손님들 반응이 정말 좋아요!", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop" },
@@ -191,6 +192,16 @@ export function LandingPage() {
             </div>
           </>
         )}
+      </section>
+
+      {/* Category quick nav */}
+      <section className="border-b border-stone-200/70 bg-gradient-to-b from-[#faf8f4] to-white px-6 py-14 sm:px-8 md:py-16">
+        <div className="mx-auto mb-10 max-w-3xl text-center">
+          <p className="text-sm font-medium tracking-[0.12em] text-amber-900/80">SPACE TYPE</p>
+          <h2 className={`mt-3 ${SECTION_TITLE_CLASS}`}>어떤 공간을 만드시나요?</h2>
+          <p className="mt-3 text-base text-stone-600 md:text-lg">분야별 시공 사례를 바로 확인해 보세요</p>
+        </div>
+        <LandingCategoryNav />
       </section>
 
       {/* Best Portfolios */}

@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { ArrowRight, Sparkles, TrendingUp, FileText, Ruler, HardHat, ShieldCheck, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 import { getPortfolios, getReviews, getHeroImageSlides } from "../../lib/api";
 import { SITE_BUSINESS } from "../../lib/siteBusinessInfo";
+import { SITE_BRANDING } from "../../lib/siteBranding";
 import type { Review } from "../../types";
 import { PortfolioProjectCard, mapPortfolioToCardProject, type PortfolioCardProject } from "../components/PortfolioProjectCard";
 
@@ -11,6 +12,10 @@ const defaultReviews: Review[] = [
   { name: "박서연", business: "오피스 대표", rating: 5, comment: "예산 내에서 최고의 결과물을 만들어주셨습니다. 직원들이 너무 좋아해요.", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop" },
   { name: "이준호", business: "레스토랑 사장", rating: 5, comment: "A/S까지 완벽하게 챙겨주시는 모습에 감동했습니다. 추천합니다!", image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop" },
 ];
+
+/** 랜딩·주요 페이지 섹션 대제목 (CTA 「지금 바로 무료 견적을」 과 동일 스케일) */
+const SECTION_TITLE_CLASS =
+  "text-3xl font-semibold tracking-tight leading-snug text-black sm:text-4xl md:text-5xl md:leading-tight";
 
 export function LandingPage() {
   const defaultHeroUrl =
@@ -197,8 +202,12 @@ export function LandingPage() {
                 <TrendingUp className="w-4 h-4 text-yellow-600" />
                 <span className="text-sm text-yellow-900 font-medium">베스트 프로젝트</span>
               </div>
-              <h2 className="text-5xl md:text-6xl mb-6 tracking-tight">최근 완료된<br />프리미엄 공간</h2>
-              <p className="text-xl text-gray-600">실제 고객의 성공 스토리를 확인하세요</p>
+              <h2 className={`mb-6 ${SECTION_TITLE_CLASS}`}>최근 완료된<br />프리미엄 공간</h2>
+              <p className="mx-auto max-w-2xl text-lg leading-relaxed text-gray-600 md:text-xl">
+                {SITE_BRANDING.portfolioSubtitleLead}
+                <br />
+                {SITE_BRANDING.portfolioSubtitleCta}
+              </p>
             </div>
             <Link
               to="/portfolio"
@@ -253,7 +262,7 @@ export function LandingPage() {
               <Sparkles className="w-4 h-4 text-blue-600" />
               <span className="text-sm text-blue-900 font-medium">간편한 프로세스</span>
             </div>
-            <h2 className="text-4xl md:text-5xl mb-6 tracking-tight text-black font-semibold">
+            <h2 className={`mb-6 ${SECTION_TITLE_CLASS}`}>
               상담부터 완공까지,<br className="hidden sm:block" />
               투명하게 진행합니다
             </h2>
@@ -343,7 +352,7 @@ export function LandingPage() {
             <span className="text-sm text-yellow-900 font-medium">1분이면 충분합니다</span>
           </div>
           
-          <h2 className="mx-auto mb-8 max-w-2xl text-3xl font-semibold tracking-tight leading-snug text-black sm:text-4xl md:text-5xl md:leading-tight">
+          <h2 className={`mx-auto mb-8 max-w-2xl ${SECTION_TITLE_CLASS}`}>
             <span className="block">지금 바로</span>
             <span className="mt-1 block sm:mt-2">
               <span className="bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent">

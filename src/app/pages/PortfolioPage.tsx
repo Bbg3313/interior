@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Tag } from "lucide-react";
 import { getPortfolios } from "../../lib/api";
 import { PORTFOLIO_INDUSTRY_OPTIONS } from "../../lib/portfolioIndustries";
+import { SITE_BRANDING } from "../../lib/siteBranding";
 import { PortfolioProjectCard, mapPortfolioToCardProject, type PortfolioCardProject } from "../components/PortfolioProjectCard";
 
 export function PortfolioPage() {
@@ -61,11 +62,13 @@ export function PortfolioPage() {
               <Tag className="w-4 h-4 text-amber-800/90 shrink-0" aria-hidden />
               <span className="text-sm font-medium tracking-wide">500+ 완료 프로젝트</span>
             </div>
-            <h1 className="text-5xl md:text-6xl lg:text-7xl mb-5 tracking-tight text-stone-900 font-semibold">
+            <h1 className="mb-5 text-3xl font-semibold tracking-tight leading-snug text-stone-900 sm:text-4xl md:text-5xl md:leading-tight">
               포트폴리오
             </h1>
-            <p className="text-lg md:text-xl text-stone-600 leading-relaxed max-w-2xl">
-              설린 우드팩토리에서 인테리어 시공한 모습을 생생하게 전해 드립니다. 직접 확인해 보세요.
+            <p className="max-w-2xl text-lg leading-relaxed text-stone-600 md:text-xl">
+              {SITE_BRANDING.portfolioSubtitleLead}
+              <br />
+              {SITE_BRANDING.portfolioSubtitleCta}
             </p>
           </div>
         </div>

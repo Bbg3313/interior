@@ -46,17 +46,23 @@ async function fetchAllRows(table) {
   return rows;
 }
 
-function rewriteUrls(row) {
+function rewriteUrls(row, oldUrl, newUrl) {
   const s = JSON.stringify(row);
   if (!s.includes("supabase.co")) return row;
-  const next = s.split(OLD_URL).join(NEW_URL);
+  let next = s.split(oldUrl).join(newUrl);
+  // 과거에 쓰던 ref 호스트도 새 ref로 (DB URL만 치환, Storage 경로는 동일)
+  const oldHosts = ["hathzkpdgszfyxggqqmw.supabase.co", "fvnxvpgwtoriewwtdphp.supabase.co"];
+  const newHost = newUrl.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  for (const h of oldHosts) {
+    if (next.includes(h)) next = next.split(h).join(newHost);
+  }
   return JSON.parse(next);
 }
 
 async function upsertInChunks(table, rows, conflict) {
   const chunk = 80;
   for (let i = 0; i < rows.length; i += chunk) {
-    const part = rows.slice(i, i + chunk).map(rewriteUrls);
+    const part = rows.slice(i, i + chunk).map((row) => rewriteUrls(row, OLD_URL, NEW_URL));
     const { error } = await newClient.from(table).upsert(part, { onConflict: conflict });
     if (error) throw new Error(`${table} upsert ${i}-${i + part.length}: ${error.message}`);
     console.log(`  ${table} ${Math.min(i + chunk, rows.length)}/${rows.length}`);

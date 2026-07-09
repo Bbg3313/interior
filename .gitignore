@@ -5,6 +5,8 @@ node_modules/
 .env
 .env.local
 .env.*.local
+.env.migrate
+.env.vercel.pull
 
 # Build
 dist/

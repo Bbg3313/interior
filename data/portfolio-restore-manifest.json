@@ -1,0 +1,62 @@
+[
+  {
+    "name": "콘크리트주택 시공",
+    "location": "강원도 고성",
+    "area": "60평",
+    "budget": "4억2천만원 (평당700만원)",
+    "industry": "건축/주거공간",
+    "style": "모던",
+    "duration": "12주",
+    "crop": { "left": 24, "top": 468, "width": 368, "height": 490 }
+  },
+  {
+    "name": "목주택 시공",
+    "location": "경기 가평",
+    "area": "60평",
+    "budget": "3억 (평당500만원)",
+    "industry": "건축/주거공간",
+    "style": "럭셔리",
+    "duration": "16주",
+    "crop": { "left": 416, "top": 468, "width": 368, "height": 490 }
+  },
+  {
+    "name": "목주택 시공",
+    "location": "경북 경주",
+    "area": "40평",
+    "budget": "2억 (평당500만원)",
+    "industry": "건축/주거공간",
+    "style": "모던",
+    "duration": "12주",
+    "crop": { "left": 808, "top": 468, "width": 368, "height": 490 }
+  },
+  {
+    "name": "맞춤 식당 티크 가구",
+    "location": "인천 검단",
+    "area": "4m × 2.5m",
+    "budget": "400만원",
+    "industry": "주문제작 가구",
+    "style": "모던",
+    "duration": "3일",
+    "crop": { "left": 24, "top": 978, "width": 368, "height": 490 }
+  },
+  {
+    "name": "카페 휘난 목공사",
+    "location": "서울 강남구",
+    "area": "10평",
+    "budget": "1,000만원",
+    "industry": "목공사",
+    "style": "럭셔리",
+    "duration": "4주",
+    "crop": { "left": 416, "top": 978, "width": 368, "height": 490 }
+  },
+  {
+    "name": "코스믹버거 청담점",
+    "location": "서울 강남구",
+    "area": "20평",
+    "budget": "2,000만원",
+    "industry": "매장/상업공간",
+    "style": "모던",
+    "duration": "8주",
+    "crop": { "left": 808, "top": 978, "width": 368, "height": 490 }
+  }
+]

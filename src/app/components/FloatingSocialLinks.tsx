@@ -11,14 +11,11 @@ export function FloatingSocialLinks() {
       }}
     >
       <a
-        href={kakaoChannelUrl || "#"}
+        href={kakaoChannelUrl}
         target="_blank"
         rel="noopener noreferrer"
         title="카카오톡"
         aria-label="카카오톡 채널로 이동"
-        onClick={(e) => {
-          if (!kakaoChannelUrl) e.preventDefault();
-        }}
         className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FEE500] text-[#3C1E1E] shadow-lg shadow-black/15 ring-1 ring-black/5 transition-transform hover:scale-105 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3C1E1E]"
       >
         <KakaoBrandIcon className="h-7 w-7" />

@@ -126,17 +126,12 @@ export function SiteFooter() {
 
             <div className="mt-3 flex items-center gap-2 sm:mt-5 sm:gap-3">
               <a
-                href={kakaoChannelUrl || "#"}
+                href={kakaoChannelUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="카카오톡 채널"
                 title="카카오톡"
-                onClick={(e) => {
-                  if (!kakaoChannelUrl) e.preventDefault();
-                }}
-                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-black/10 bg-[#FEE500] text-[#3C1E1E] transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3C1E1E] sm:h-9 sm:w-9 sm:rounded-xl ${
-                  !kakaoChannelUrl ? "pointer-events-none opacity-40" : ""
-                }`}
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-black/10 bg-[#FEE500] text-[#3C1E1E] transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3C1E1E] sm:h-9 sm:w-9 sm:rounded-xl"
               >
                 <KakaoBrandIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </a>

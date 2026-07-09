@@ -1,22 +1,22 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { Home, Store, Armchair, Presentation } from "lucide-react";
+import { Home, Store, Armchair, Presentation, Hammer } from "lucide-react";
 import { LANDING_CATEGORY_MENU } from "../../lib/landingCategories";
 
-const ICONS = [Home, Store, Armchair, Presentation] as const;
+const ICONS = [Home, Store, Armchair, Presentation, Hammer] as const;
 
 export function LandingCategoryNav() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   return (
-    <nav aria-label="시공 분야 바로가기" className="mx-auto max-w-5xl">
-      <div className="relative px-2 sm:px-6">
+    <nav aria-label="시공 분야 바로가기" className="mx-auto max-w-6xl">
+      <div className="relative px-2 sm:px-4">
         <div
-          className="pointer-events-none absolute left-[8%] right-[8%] top-[2.75rem] hidden h-px bg-stone-300/90 sm:block md:top-[3.25rem]"
+          className="pointer-events-none absolute left-[6%] right-[6%] top-[2.75rem] hidden h-px bg-stone-300/90 sm:block md:top-[3.25rem] lg:left-[4%] lg:right-[4%]"
           aria-hidden
         />
 
-        <ul className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-4 sm:gap-y-0">
+        <ul className="grid grid-cols-2 gap-x-3 gap-y-10 sm:grid-cols-3 sm:gap-x-4 lg:grid-cols-5 lg:gap-y-0">
           {LANDING_CATEGORY_MENU.map((item, index) => {
             const Icon = ICONS[index];
             const isActive = activeIndex === index;

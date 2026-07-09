@@ -20,4 +20,9 @@ export const LANDING_CATEGORY_MENU = [
     industry: "전시/행사",
     image: "/category-images/exhibition.jpg",
   },
+  {
+    label: "목공사",
+    industry: "목공사",
+    image: "/category-images/woodwork.jpg",
+  },
 ] as const;

@@ -2,6 +2,7 @@ import { useState, useEffect, useLayoutEffect } from "react";
 import { Link } from "react-router";
 import { ArrowRight, Sparkles, TrendingUp, FileText, Ruler, HardHat, ShieldCheck, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 import { getPortfolios, getReviews, getHeroImageSlides } from "../../lib/api";
+import { SITE_BUSINESS } from "../../lib/siteBusinessInfo";
 import type { Review } from "../../types";
 import { PortfolioProjectCard, mapPortfolioToCardProject, type PortfolioCardProject } from "../components/PortfolioProjectCard";
 
@@ -344,11 +345,29 @@ export function LandingPage() {
             받아보세요
           </h2>
           
-          <p className="text-xl md:text-2xl text-gray-600 mb-12 leading-relaxed">
+          <p className="text-xl md:text-2xl text-gray-600 mb-10 leading-relaxed">
             투명하고 합리적인 견적을 제공합니다
           </p>
+
+          <div className="mb-12 flex flex-col items-center gap-4">
+            <span className="rounded-full bg-stone-700 px-5 py-2 text-xs font-medium tracking-[0.12em] text-stone-100">
+              전화 문의
+            </span>
+            <a
+              href={SITE_BUSINESS.telHref}
+              className="text-4xl font-bold tracking-tight text-stone-800 tabular-nums transition-colors hover:text-stone-600 md:text-5xl"
+            >
+              {SITE_BUSINESS.telDisplay}
+            </a>
+            <a
+              href={SITE_BUSINESS.mobileHref}
+              className="text-base text-stone-500 tabular-nums transition-colors hover:text-stone-700 md:text-lg"
+            >
+              휴대폰 {SITE_BUSINESS.mobileDisplay}
+            </a>
+          </div>
           
-          <Link 
+          <Link
             to="/estimate"
             className="group inline-flex items-center gap-3 bg-gradient-to-r from-yellow-400 to-amber-400 hover:from-yellow-500 hover:to-amber-500 text-black px-12 py-6 rounded-full transition-all text-xl font-semibold shadow-2xl shadow-yellow-400/25 hover:shadow-yellow-400/40 hover:scale-105"
           >
